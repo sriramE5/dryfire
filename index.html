@@ -1052,7 +1052,7 @@ input:checked + .slider-switch:before {
                 </div>
                 
                 <div class="target-preview-box">
-                    <div class="target-wrapper" id="targetPreviewWrapper" onclick="handleTargetClick(event)" style="cursor: crosshair; user-select: none;">
+                    <div class="target-wrapper" id="targetPreviewWrapper" style="cursor: crosshair; user-select: none; touch-action: manipulation;">
                         <!-- Rendered SVG will go here -->
                     </div>
                     <div style="text-align:center;">
@@ -2255,6 +2255,13 @@ function handleTargetClick(event) {
     }
 }
 
+function handleTargetTouch(event) {
+    event.preventDefault();
+    if (event.changedTouches && event.changedTouches.length > 0) {
+        handleTargetClick(event.changedTouches[0]);
+    }
+}
+
 function clearTargetMarkers() {
     targetMarkers = [];
     updateTargetPreview();
@@ -2590,6 +2597,12 @@ function loadSettings() {
    ========================================================================== */
 window.addEventListener("DOMContentLoaded", () => {
     document.getElementById("progressCircle").addEventListener("click", manualShotTrigger);
+    
+    const wrapper = document.getElementById("targetPreviewWrapper");
+    if (wrapper) {
+        wrapper.addEventListener("click", handleTargetClick);
+        wrapper.addEventListener("touchend", handleTargetTouch);
+    }
     
     loadSettings();
     updateTargetPreview();
