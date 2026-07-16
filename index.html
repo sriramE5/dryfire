@@ -1,1 +1,2298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10m Pistol Dry Fire Companion</title>
 
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --bg-dark: #0a0b0d;
+    --bg-card: rgba(22, 24, 29, 0.75);
+    --border-color: rgba(255, 255, 255, 0.08);
+    --text-main: #f5f6f8;
+    --text-muted: #90a4ae;
+    
+    /* Neon Status Colors */
+    --color-idle: #90a4ae;
+    --color-prep: #ffb300;
+    --color-hold: #00e676;
+    --color-follow: #00e5ff;
+    --color-rest: #78909c;
+    --color-stop: #ff1744;
+    
+    --primary-glow: rgba(0, 230, 118, 0.25);
+    --active-color: var(--color-idle);
+    
+    --font-sans: 'Inter', sans-serif;
+    --font-mono: 'Orbitron', monospace;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+}
+
+body {
+    background-color: var(--bg-dark);
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(20, 24, 33, 0.5) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(0, 229, 255, 0.03) 0px, transparent 50%),
+        radial-gradient(at 50% 100%, rgba(0, 230, 118, 0.02) 0px, transparent 50%);
+    color: var(--text-main);
+    font-family: var(--font-sans);
+    min-height: 100vh;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-x: hidden;
+}
+
+.app-container {
+    width: 100%;
+    max-width: 1100px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 5px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.brand-icon {
+    font-size: 28px;
+    filter: drop-shadow(0 0 8px rgba(0, 230, 118, 0.4));
+}
+
+.brand-text h1 {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #fff 30%, #90a4ae 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.brand-text p {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.version-badge {
+    background: rgba(0, 230, 118, 0.1);
+    border: 1px solid rgba(0, 230, 118, 0.3);
+    color: #00e676;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 0 10px rgba(0, 230, 118, 0.1);
+}
+
+/* Layout Grid */
+.main-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1.4fr;
+    gap: 20px;
+}
+
+@media (max-width: 900px) {
+    .main-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Common Card Styling */
+.card {
+    background: var(--bg-card);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Left Column: Visualizer Card */
+.coach-card {
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.visualizer-container {
+    position: relative;
+    width: 240px;
+    height: 240px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.progress-ring {
+    transform: rotate(-90deg);
+    position: absolute;
+    top: 0;
+    left: 0;
+    filter: drop-shadow(0 0 12px var(--primary-glow));
+}
+
+.progress-ring-fg {
+    transition: stroke-dashoffset 0.1s linear, stroke 0.4s ease;
+}
+
+.timer-display {
+    text-align: center;
+    z-index: 10;
+}
+
+.timer-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+    transition: color 0.3s;
+}
+
+.timer-seconds {
+    font-family: var(--font-mono);
+    font-size: 56px;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--text-main);
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+    margin-bottom: 5px;
+}
+
+.timer-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.status-badge {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-top: 10px;
+    text-shadow: 0 0 15px var(--primary-glow);
+    text-align: center;
+    transition: color 0.3s;
+}
+
+/* Coach Controls */
+.controls-group {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    margin-top: 25px;
+}
+
+.btn {
+    flex: 1;
+    padding: 14px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #00e676 0%, #00b894 100%);
+    color: #030a06;
+    box-shadow: 0 4px 15px rgba(0, 230, 118, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 230, 118, 0.45);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-secondary:active {
+    transform: scale(0.98);
+}
+
+.btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Micro Stats Panel */
+.micro-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    width: 100%;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.micro-stat-card {
+    background: rgba(0,0,0,0.15);
+    border: 1px solid rgba(255,255,255,0.03);
+    border-radius: 8px;
+    padding: 8px;
+    text-align: center;
+}
+
+.micro-stat-val {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.micro-stat-lbl {
+    font-size: 9px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+}
+
+/* Right Column: Settings & extras Card */
+.config-card {
+    min-height: 480px;
+}
+
+/* Tabs */
+.tabs-header {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 20px;
+    gap: 5px;
+    overflow-x: auto;
+}
+
+.tab-btn {
+    padding: 12px 16px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.tab-btn:hover {
+    color: var(--text-main);
+}
+
+.tab-btn.active {
+    color: #00e676;
+    border-bottom-color: #00e676;
+    font-weight: 600;
+}
+
+.tab-content {
+    display: none;
+    flex-direction: column;
+    gap: 20px;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.tab-content.active {
+    display: flex;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Form Styles */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-main);
+    display: flex;
+    justify-content: space-between;
+}
+
+.label-desc {
+    font-weight: normal;
+    color: var(--text-muted);
+}
+
+select, input[type="number"], input[type="text"] {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+}
+
+select:focus, input:focus {
+    border-color: #00e676;
+}
+
+.slider-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+input[type="range"] {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    background: rgba(255, 255, 255, 0.1);
+    height: 6px;
+    border-radius: 3px;
+    outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #00e676;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(0, 230, 118, 0.8);
+    transition: transform 0.1s;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+}
+
+.slider-val {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+    min-width: 36px;
+    text-align: right;
+}
+
+/* Accordion for custom timers */
+.accordion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.accordion-header:hover {
+    color: var(--text-main);
+}
+
+.accordion-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s cubic-bezier(0, 1, 0, 1);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-top: 0;
+}
+
+.accordion-body.open {
+    max-height: 1000px;
+    padding-top: 14px;
+    transition: max-height 0.3s cubic-bezier(1, 0, 1, 0);
+}
+
+/* Audio Tab Meter */
+.mic-calibration {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 18px;
+}
+
+.meter-wrapper {
+    position: relative;
+    height: 14px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 7px;
+    margin: 15px 0 8px 0;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.03);
+}
+
+.volume-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #00e5ff 0%, #00e676 70%, #ff1744 100%);
+    border-radius: 7px;
+    transition: width 0.05s linear;
+}
+
+.threshold-marker {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: #ff1744;
+    box-shadow: 0 0 8px rgba(255, 23, 68, 0.8);
+    pointer-events: none;
+    z-index: 10;
+}
+
+.toggle-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+}
+
+/* Switch Styles */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider-switch {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.1);
+    transition: .3s;
+    border-radius: 24px;
+    border: 1px solid var(--border-color);
+}
+
+.slider-switch:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #fff;
+    transition: .3s;
+    border-radius: 50%;
+}
+
+input:checked + .slider-switch {
+    background-color: #00e676;
+}
+
+input:checked + .slider-switch:before {
+    transform: translateX(20px);
+    background-color: #05160c;
+}
+
+/* Target Generator Tab */
+.target-preview-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px dashed var(--border-color);
+}
+
+.target-wrapper {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* History Tab Dashboard */
+.history-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+@media (max-width: 600px) {
+    .history-stats-grid {
+        grid-template-columns: repeat(2, 2fr);
+    }
+}
+
+.stat-box {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(255,255,255,0.03);
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+}
+
+.stat-number {
+    font-family: var(--font-mono);
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.stat-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+}
+
+/* CSS Chart */
+.chart-container {
+    height: 160px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 15px 15px 5px 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.chart-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+}
+
+.chart-bars {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    gap: 6px;
+    height: 100%;
+    overflow-x: auto;
+    padding-bottom: 5px;
+}
+
+.chart-bar-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    min-width: 14px;
+    max-width: 24px;
+    height: 100%;
+    justify-content: flex-end;
+}
+
+.chart-bar {
+    width: 100%;
+    background: linear-gradient(to top, #00b894, #00e5ff);
+    border-radius: 4px 4px 0 0;
+    transition: height 0.5s ease-out;
+    position: relative;
+    cursor: pointer;
+}
+
+.chart-bar:hover {
+    filter: brightness(1.2);
+}
+
+.chart-bar.aborted {
+    background: linear-gradient(to top, #d63031, #ff7675);
+}
+
+.chart-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-5px);
+    background: #000;
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    padding: 3px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    border: 1px solid rgba(255,255,255,0.15);
+    z-index: 100;
+}
+
+.chart-bar:hover .chart-tooltip {
+    opacity: 1;
+}
+
+.chart-bar-label {
+    font-size: 8px;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+/* History logs list */
+.logs-table-container {
+    max-height: 180px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: rgba(0,0,0,0.15);
+}
+
+.logs-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    text-align: left;
+}
+
+.logs-table th {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 8px 12px;
+    color: var(--text-muted);
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+}
+
+.logs-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+
+.logs-table tr:hover {
+    background: rgba(255,255,255,0.02);
+}
+
+.log-aborted {
+    color: #ff1744;
+}
+
+.log-time {
+    font-family: var(--font-mono);
+    font-weight: bold;
+    color: #00e5ff;
+}
+
+.btn-action-small {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 4px;
+}
+
+.btn-action-small:hover {
+    color: #ff1744;
+    background: rgba(255,23,68,0.1);
+}
+
+.history-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* Target Generator SVG styling */
+#scaledTargetSvg circle {
+    vector-effect: non-scaling-stroke;
+}
+
+/* Print CSS placeholder */
+#printArea {
+    display: none;
+}
+</style>
+</head>
+<body>
+
+<div class="app-container">
+    
+    <!-- Top Header -->
+    <header>
+        <div class="brand">
+            <span class="brand-icon">🎯</span>
+            <div class="brand-text">
+                <h1>Dry Fire Companion</h1>
+                <p>10m Pistol Training System</p>
+            </div>
+        </div>
+        <div class="version-badge">v2.0 Premium</div>
+    </header>
+    
+    <!-- Main Two-Column Grid -->
+    <div class="main-grid">
+        
+        <!-- Left: Coach / Active Screen -->
+        <div class="card coach-card">
+            
+            <div class="timer-label" id="currentPhaseLabel">READY</div>
+            
+            <!-- Circular countdown visualizer -->
+            <div class="visualizer-container">
+                <svg width="240" height="240" viewBox="0 0 240 240" class="progress-ring">
+                    <circle 
+                        stroke="rgba(255,255,255,0.04)" 
+                        stroke-width="12" 
+                        fill="transparent" 
+                        r="100" 
+                        cx="120" 
+                        cy="120">
+                    </circle>
+                    <circle 
+                        id="progressCircle" 
+                        class="progress-ring-fg" 
+                        stroke="var(--active-color)" 
+                        stroke-width="12" 
+                        fill="transparent" 
+                        r="100" 
+                        cx="120" 
+                        cy="120" 
+                        stroke-linecap="round"
+                        stroke-dasharray="628.32" 
+                        stroke-dashoffset="0">
+                    </circle>
+                </svg>
+                
+                <div class="timer-display">
+                    <div class="timer-seconds" id="timerValue">0.0</div>
+                    <div class="timer-sub" id="timerSubLabel">Seconds</div>
+                </div>
+            </div>
+            
+            <!-- Action Instruction Text -->
+            <div class="status-badge" id="instructionBadge" style="color: var(--color-idle);">
+                PRESS START TO BEGIN
+            </div>
+            
+            <!-- Control Buttons -->
+            <div class="controls-group">
+                <button class="btn btn-primary" id="startBtn" onclick="toggleTraining()">
+                    ▶️ Start Practice
+                </button>
+                <button class="btn btn-secondary" id="resetBtn" onclick="resetTraining()" disabled>
+                    🔄 Reset
+                </button>
+            </div>
+            
+            <!-- Micro Stats Panel -->
+            <div class="micro-stats">
+                <div class="micro-stat-card">
+                    <div class="micro-stat-val" id="microShotCount">0 / --</div>
+                    <div class="micro-stat-lbl">Shots</div>
+                </div>
+                <div class="micro-stat-card">
+                    <div class="micro-stat-val" id="microAvgHold">0.0s</div>
+                    <div class="micro-stat-lbl">Avg Hold</div>
+                </div>
+                <div class="micro-stat-card">
+                    <div class="micro-stat-val" id="microMicStatus" style="color: var(--color-rest);">OFF</div>
+                    <div class="micro-stat-lbl">Mic Trigger</div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <!-- Right: Settings & Tabs Dashboard -->
+        <div class="card config-card">
+            
+            <!-- Tab Headers -->
+            <div class="tabs-header">
+                <button class="tab-btn active" onclick="switchTab(event, 'settingsTab')">⚙️ Settings</button>
+                <button class="tab-btn" onclick="switchTab(event, 'audioTab')">🎤 Audio & Trigger</button>
+                <button class="tab-btn" onclick="switchTab(event, 'targetTab')">🎯 Target Gen</button>
+                <button class="tab-btn" onclick="switchTab(event, 'historyTab')">📊 Analytics</button>
+            </div>
+            
+            <!-- Tab Content: Settings -->
+            <div class="tab-content active" id="settingsTab">
+                
+                <div class="form-group">
+                    <label>Training Mode
+                        <span class="label-desc" id="modeExplanation">Standard loop of raise and rest.</span>
+                    </label>
+                    <select id="trainingMode" onchange="onModeChange()">
+                        <option value="classic">Classic Cycle (Paced)</option>
+                        <option value="finals">ISSF Finals Simulator (Range Commands)</option>
+                        <option value="coached">Coached Rhythm (Voice Prompts)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Number of Shots</label>
+                    <select id="totalShotsSelect">
+                        <option value="5">5 Shots</option>
+                        <option value="10" selected>10 Shots</option>
+                        <option value="20">20 Shots</option>
+                        <option value="30">30 Shots</option>
+                        <option value="40">40 Shots</option>
+                        <option value="60">60 Shots</option>
+                        <option value="0">Unlimited (Infinite)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Pacing Profile Presets</label>
+                    <select id="presetSelect" onchange="applyPreset()">
+                        <option value="standard">Standard Hold (15s hold, 20s rest)</option>
+                        <option value="endurance">Endurance Hold (30s hold, 30s rest)</option>
+                        <option value="rapid">Rapid Rhythm (8s hold, 15s rest)</option>
+                        <option value="custom">Custom Timing...</option>
+                    </select>
+                </div>
+                
+                <!-- Accordion for Custom Timers -->
+                <div>
+                    <div class="accordion-header" id="accordionHeader" onclick="toggleAccordion()">
+                        <span>Custom Interval Configurations (Seconds)</span>
+                        <span id="accordionArrow">▼</span>
+                    </div>
+                    <div class="accordion-body" id="accordionBody">
+                        
+                        <div class="form-group">
+                            <label>Preparation Time
+                                <span class="label-desc">Time to load / breathe</span>
+                            </label>
+                            <div class="slider-container">
+                                <input type="range" id="paramPrep" min="3" max="15" value="5" oninput="updateParamLabel('Prep')">
+                                <span class="slider-val" id="lblPrep">5s</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Maximum Aim / Hold Time
+                                <span class="label-desc">Window to execute the shot</span>
+                            </label>
+                            <div class="slider-container">
+                                <input type="range" id="paramHold" min="5" max="45" value="15" oninput="updateParamLabel('Hold')">
+                                <span class="slider-val" id="lblHold">15s</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Follow-through Duration
+                                <span class="label-desc">Hold sights after click</span>
+                            </label>
+                            <div class="slider-container">
+                                <input type="range" id="paramFollow" min="1" max="8" value="3" oninput="updateParamLabel('Follow')">
+                                <span class="slider-val" id="lblFollow">3s</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Rest / Down Duration
+                                <span class="label-desc">Relaxation interval between shots</span>
+                            </label>
+                            <div class="slider-container">
+                                <input type="range" id="paramRest" min="10" max="60" value="20" oninput="updateParamLabel('Rest')">
+                                <span class="slider-val" id="lblRest">20s</span>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                
+            </div>
+            
+            <!-- Tab Content: Audio & Trigger -->
+            <div class="tab-content" id="audioTab">
+                
+                <div class="form-group">
+                    <label>Audio Cues Mode</label>
+                    <select id="audioCuesSelect" onchange="onAudioSettingChange()">
+                        <option value="both">Both Beeps and Voice commands</option>
+                        <option value="beeps">Beeps Only</option>
+                        <option value="voice">Voice Commands Only</option>
+                        <option value="none">Muted / Quiet</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Volume Level</label>
+                    <div class="slider-container">
+                        <input type="range" id="paramVolume" min="0" max="1" step="0.1" value="0.5" oninput="onAudioSettingChange()">
+                        <span class="slider-val" id="lblVolume">50%</span>
+                    </div>
+                </div>
+                
+                <div class="toggle-group" style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 5px;">
+                    <div>
+                        <div style="font-weight:600; font-size:14px;">Microphone Click Detection</div>
+                        <div style="font-size:11px; color:var(--text-muted); margin-top: 2px;">Automatically logs shot on trigger click.</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="micToggle" onchange="toggleMic()">
+                        <span class="slider-switch"></span>
+                    </label>
+                </div>
+                
+                <div class="mic-calibration" id="micCalibrationSection" style="opacity: 0.5; pointer-events: none; transition: opacity 0.3s;">
+                    <label>Microphone Sensitivity Calibration
+                        <span class="label-desc">Set threshold above noise floor</span>
+                    </label>
+                    
+                    <div class="meter-wrapper">
+                        <!-- Volume input meter -->
+                        <div class="volume-bar" id="micVolumeBar"></div>
+                        <!-- Threshold visual marker -->
+                        <div class="threshold-marker" id="micThresholdMarker" style="left: 15%;"></div>
+                    </div>
+                    
+                    <div class="slider-container">
+                        <span>Min (Quiet)</span>
+                        <input type="range" id="micThresholdSlider" min="0.01" max="0.5" step="0.005" value="0.15" oninput="onThresholdChange()">
+                        <span>Max (Loud)</span>
+                    </div>
+                    <div style="font-size:11px; color: var(--text-muted); text-align: center; margin-top: 6px;">
+                        Dry fire your pistol. You should see a green/cyan spike. Adjust threshold marker (red line) to sit just below the spike.
+                    </div>
+                </div>
+                
+                <button class="btn btn-secondary" onclick="testAudio()" style="margin-top: 5px;">
+                    🔊 Test Audio Configuration
+                </button>
+                
+            </div>
+            
+            <!-- Tab Content: Target Generator -->
+            <div class="tab-content" id="targetTab">
+                
+                <div style="display:grid; grid-template-columns: 2fr 1fr; gap:12px;">
+                    <div class="form-group">
+                        <label>Simulated Distance</label>
+                        <input type="number" id="targetDistance" min="1" max="10" step="0.1" value="3.0" oninput="updateTargetPreview()">
+                    </div>
+                    <div class="form-group">
+                        <label>Unit</label>
+                        <select id="distanceUnit" onchange="updateTargetPreview()">
+                            <option value="meters">Meters</option>
+                            <option value="feet">Feet</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="target-preview-box">
+                    <div class="target-wrapper" id="targetPreviewWrapper">
+                        <!-- Rendered SVG will go here -->
+                    </div>
+                    <div style="text-align:center;">
+                        <div style="font-weight:600; font-size:14px;" id="targetDimensionsLabel">Scaled Circle: 17.85mm</div>
+                        <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">
+                            Simulates a 10m target when placed at this exact distance.
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" onclick="printTarget()">
+                    🖨️ Print Scaled Target (PDF/Print)
+                </button>
+                
+            </div>
+            
+            <!-- Tab Content: History & Analytics -->
+            <div class="tab-content" id="historyTab">
+                
+                <!-- Stats Dashboard Grid -->
+                <div class="history-stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-number" id="statsTotalShots">0</div>
+                        <div class="stat-label">Total Shots</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="statsAvgHold">0.0s</div>
+                        <div class="stat-label">Avg Hold</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="statsConsistency">--</div>
+                        <div class="stat-label">Consistency</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="statsAborts">0</div>
+                        <div class="stat-label">Aborted</div>
+                    </div>
+                </div>
+                
+                <!-- Hold Time Chart -->
+                <div class="chart-container">
+                    <div class="chart-title">Shot Execution Durations (Last 15 Shots)</div>
+                    <div class="chart-bars" id="holdTimesChart">
+                        <!-- Bars dynamically rendered -->
+                        <div style="color:var(--text-muted); font-size:12px; margin:auto;">No shots recorded yet.</div>
+                    </div>
+                </div>
+                
+                <!-- Logs List Table -->
+                <div class="logs-table-container">
+                    <table class="logs-table">
+                        <thead>
+                            <tr>
+                                <th>Shot #</th>
+                                <th>Mode</th>
+                                <th>Hold Time</th>
+                                <th>Result</th>
+                                <th>Time</th>
+                                <th style="width: 40px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="logsTableBody">
+                            <tr>
+                                <td colspan="6" style="text-align:center; color:var(--text-muted); padding: 20px;">
+                                    Your training shot history will appear here.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="history-actions">
+                    <button class="btn btn-secondary" onclick="exportCSV()" style="padding: 10px 16px; font-size: 13px;">
+                        📥 Export CSV
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearHistory()" style="padding: 10px 16px; font-size: 13px; color: var(--color-stop);">
+                        🗑️ Clear All
+                    </button>
+                </div>
+                
+            </div>
+            
+        </div>
+        
+    </div>
+    
+</div>
+
+<script>
+/* ==========================================================================
+   AUDIO ENGINE
+   ========================================================================== */
+class AudioEngine {
+    constructor() {
+        this.ctx = null;
+        this.voice = null;
+        this.initSpeech();
+    }
+
+    initCtx() {
+        if (!this.ctx) {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
+        }
+    }
+
+    initSpeech() {
+        if ('speechSynthesis' in window) {
+            // Load voices
+            window.speechSynthesis.onvoiceschanged = () => {
+                const voices = window.speechSynthesis.getVoices();
+                // Prefer English standard voice
+                this.voice = voices.find(v => v.lang.startsWith('en')) || voices[0];
+            };
+        }
+    }
+
+    playBeep(freq, duration, volMultiplier = 1) {
+        if (settings.audioCues === 'voice' || settings.audioCues === 'none') return;
+        
+        this.initCtx();
+        try {
+            const osc = this.ctx.createOscillator();
+            const gainNode = this.ctx.createGain();
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+            
+            // Apply volume setting
+            const volume = parseFloat(settings.volume) * volMultiplier;
+            gainNode.gain.setValueAtTime(0.0001, this.ctx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(volume, this.ctx.currentTime + 0.05);
+            gainNode.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+            
+            osc.connect(gainNode);
+            gainNode.connect(this.ctx.destination);
+            
+            osc.start();
+            osc.stop(this.ctx.currentTime + duration);
+        } catch (e) {
+            console.error("Audio beep error:", e);
+        }
+    }
+
+    speak(text) {
+        if (settings.audioCues === 'beeps' || settings.audioCues === 'none') return;
+        
+        if ('speechSynthesis' in window) {
+            try {
+                window.speechSynthesis.cancel(); // Cancel any active queue
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.volume = parseFloat(settings.volume);
+                
+                // Voice speed setting
+                utterance.rate = 1.05; 
+                
+                if (this.voice) {
+                    utterance.voice = this.voice;
+                }
+                window.speechSynthesis.speak(utterance);
+            } catch (e) {
+                console.error("Speech error:", e);
+            }
+        }
+    }
+}
+
+const audio = new AudioEngine();
+
+/* ==========================================================================
+   MICROPHONE CLICK DETECTOR
+   ========================================================================== */
+class ClickDetector {
+    constructor(onTriggerCallback) {
+        this.stream = null;
+        this.ctx = null;
+        this.source = null;
+        this.analyser = null;
+        this.bufferLength = 0;
+        this.dataArray = null;
+        this.isEnabled = false;
+        this.onTrigger = onTriggerCallback;
+        this.animationId = null;
+        this.lastTriggerTime = 0;
+    }
+
+    async enable() {
+        if (this.isEnabled) return;
+        
+        try {
+            this.stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            this.source = this.ctx.createMediaStreamSource(this.stream);
+            this.analyser = this.ctx.createAnalyser();
+            this.analyser.fftSize = 256;
+            this.bufferLength = this.analyser.frequencyBinCount;
+            this.dataArray = new Uint8Array(this.bufferLength);
+            
+            this.source.connect(this.analyser);
+            this.isEnabled = true;
+            
+            document.getElementById("microMicStatus").textContent = "ON";
+            document.getElementById("microMicStatus").style.color = "var(--color-hold)";
+            document.getElementById("micCalibrationSection").style.opacity = "1";
+            document.getElementById("micCalibrationSection").style.pointerEvents = "auto";
+            
+            this.loop();
+        } catch (e) {
+            console.error("Microphone access denied or error:", e);
+            document.getElementById("micToggle").checked = false;
+            alert("Could not access microphone. Please ensure permissions are granted and you are on a secure connection (localhost or HTTPS).");
+        }
+    }
+
+    disable() {
+        if (!this.isEnabled) return;
+        
+        if (this.animationId) {
+            cancelAnimationFrame(this.animationId);
+            this.animationId = null;
+        }
+        
+        if (this.stream) {
+            this.stream.getTracks().forEach(track => track.stop());
+            this.stream = null;
+        }
+        
+        this.isEnabled = false;
+        document.getElementById("microMicStatus").textContent = "OFF";
+        document.getElementById("microMicStatus").style.color = "var(--color-rest)";
+        document.getElementById("micCalibrationSection").style.opacity = "0.5";
+        document.getElementById("micCalibrationSection").style.pointerEvents = "none";
+        document.getElementById("micVolumeBar").style.width = "0%";
+    }
+
+    loop() {
+        if (!this.isEnabled) return;
+        
+        this.analyser.getByteTimeDomainData(this.dataArray);
+        
+        // Find Peak Amplitude (normalized to 0-1)
+        let maxVal = 0;
+        for (let i = 0; i < this.bufferLength; i++) {
+            const val = Math.abs(this.dataArray[i] - 128); // center 128
+            if (val > maxVal) maxVal = val;
+        }
+        const volume = maxVal / 128;
+        
+        // Update visual meter
+        const percentage = Math.min(volume * 100, 100);
+        document.getElementById("micVolumeBar").style.width = `${percentage}%`;
+        
+        // Check for click
+        const threshold = parseFloat(settings.micThreshold);
+        const now = Date.now();
+        
+        if (volume > threshold && (now - this.lastTriggerTime > 1500)) {
+            this.lastTriggerTime = now;
+            this.onTrigger(volume);
+        }
+        
+        this.animationId = requestAnimationFrame(() => this.loop());
+    }
+}
+
+// Instantiate detector
+let clickDetector = null;
+
+function handleMicrophoneShot(volume) {
+    // Only register shot if we are active and in the HOLD state
+    if (trainingState === 'HOLD') {
+        recordShotClick(false); // Fired successfully
+    }
+}
+
+/* ==========================================================================
+   APP CONFIG & CONSTANTS
+   ========================================================================== */
+let trainingState = 'IDLE'; // IDLE, STARTING, PREP, HOLD, FOLLOW, REST, FINISHED
+let paused = false;
+let timerId = null;
+
+let currentSessionId = null;
+let currentShotNumber = 0;
+let shotTimes = []; // hold durations for current session
+let holdStartTime = 0; // timestamp when raise started
+let activeTimeLeft = 0; // seconds left in current state
+let activeTimeMax = 1; // max duration of current state
+
+// Default App Settings
+let settings = {
+    mode: 'classic',
+    totalShots: 10,
+    prepTime: 5,
+    maxHoldTime: 15,
+    followTime: 3,
+    restTime: 20,
+    finalsPrepTime: 10, // Loading time in finals
+    finalsHoldTime: 50, // ISSF Rule hold time limit
+    audioCues: 'both',
+    volume: 0.5,
+    micEnabled: false,
+    micThreshold: 0.15
+};
+
+// Presets
+const PRESETS = {
+    standard: { prepTime: 5, maxHoldTime: 15, followTime: 3, restTime: 20 },
+    endurance: { prepTime: 5, maxHoldTime: 30, followTime: 3, restTime: 30 },
+    rapid: { prepTime: 5, maxHoldTime: 8, followTime: 2, restTime: 15 }
+};
+
+/* ==========================================================================
+   STATE MACHINE & TIMER LOGIC
+   ========================================================================== */
+function toggleTraining() {
+    audio.initCtx(); // Resume AudioContext on user interaction
+    
+    const startBtn = document.getElementById("startBtn");
+    
+    if (trainingState === 'IDLE' || trainingState === 'FINISHED') {
+        // Start new session
+        startNewSession();
+    } else {
+        // Pause / Resume
+        if (!paused) {
+            paused = true;
+            startBtn.innerHTML = "▶️ Resume";
+            document.getElementById("instructionBadge").textContent = "⏸️ PRACTICE PAUSED";
+            document.getElementById("instructionBadge").style.color = "var(--color-prep)";
+            audio.speak("Pause");
+        } else {
+            paused = false;
+            startBtn.innerHTML = "⏸️ Pause";
+            updateVisualsForState();
+            audio.speak("Resume");
+        }
+    }
+}
+
+function startNewSession() {
+    trainingState = 'STARTING';
+    paused = false;
+    currentShotNumber = 0;
+    shotTimes = [];
+    currentSessionId = Date.now();
+    
+    document.getElementById("resetBtn").disabled = false;
+    document.getElementById("startBtn").innerHTML = "⏸️ Pause";
+    
+    // Load config settings
+    settings.totalShots = parseInt(document.getElementById("totalShotsSelect").value);
+    
+    // UI update
+    updateMicroStats();
+    
+    // Setup state
+    activeTimeLeft = 5; // 5 seconds initial prep countdown
+    activeTimeMax = 5;
+    
+    enterState('STARTING');
+    
+    // Start interval loop
+    if (timerId) clearInterval(timerId);
+    timerId = setInterval(tick, 100);
+}
+
+function resetTraining() {
+    if (timerId) {
+        clearInterval(timerId);
+        timerId = null;
+    }
+    
+    trainingState = 'IDLE';
+    paused = false;
+    currentShotNumber = 0;
+    shotTimes = [];
+    
+    const startBtn = document.getElementById("startBtn");
+    startBtn.innerHTML = "▶️ Start Practice";
+    startBtn.disabled = false;
+    
+    document.getElementById("resetBtn").disabled = true;
+    document.getElementById("currentPhaseLabel").textContent = "READY";
+    document.getElementById("timerValue").textContent = "0.0";
+    document.getElementById("instructionBadge").textContent = "PRESS START TO BEGIN";
+    document.getElementById("instructionBadge").style.color = "var(--color-idle)";
+    
+    updateProgressRing(0);
+    updateMicroStats();
+    audio.speak("Reset");
+}
+
+function tick() {
+    if (paused) return;
+    
+    activeTimeLeft -= 0.1;
+    if (activeTimeLeft <= 0.05) { // floating point tolerance
+        activeTimeLeft = 0;
+        transitionNextState();
+    } else {
+        // Update timer text and progress ring
+        document.getElementById("timerValue").textContent = activeTimeLeft.toFixed(1);
+        updateProgressRing(activeTimeLeft / activeTimeMax);
+        
+        // Coached / finals mid-state voices
+        handleMidStateAudioEvents();
+    }
+}
+
+function enterState(newState) {
+    trainingState = newState;
+    paused = false;
+    updateVisualsForState();
+    
+    // Sound signals & speech Synthesis
+    playStateStartingAudio();
+    
+    if (newState === 'HOLD') {
+        holdStartTime = Date.now();
+    }
+}
+
+function transitionNextState() {
+    const totalSelected = settings.totalShots;
+    
+    switch (trainingState) {
+        case 'STARTING':
+            currentShotNumber = 1;
+            updateMicroStats();
+            activeTimeMax = (settings.mode === 'finals') ? settings.finalsPrepTime : settings.prepTime;
+            activeTimeLeft = activeTimeMax;
+            enterState('PREP');
+            break;
+            
+        case 'PREP':
+            activeTimeMax = (settings.mode === 'finals') ? settings.finalsHoldTime : settings.maxHoldTime;
+            activeTimeLeft = activeTimeMax;
+            enterState('HOLD');
+            break;
+            
+        case 'HOLD':
+            // If we reached here without a shot click, it's an abort (Time limit exceeded)
+            recordShotClick(true); // Log as Aborted
+            break;
+            
+        case 'FOLLOW':
+            activeTimeMax = settings.restTime;
+            activeTimeLeft = activeTimeMax;
+            enterState('REST');
+            break;
+            
+        case 'REST':
+            if (totalSelected === 0 || currentShotNumber < totalSelected) {
+                // Next Shot
+                currentShotNumber++;
+                updateMicroStats();
+                activeTimeMax = (settings.mode === 'finals') ? settings.finalsPrepTime : settings.prepTime;
+                activeTimeLeft = activeTimeMax;
+                enterState('PREP');
+            } else {
+                // Done!
+                activeTimeMax = 1;
+                activeTimeLeft = 0;
+                enterState('FINISHED');
+            }
+            break;
+            
+        case 'FINISHED':
+            resetTraining();
+            break;
+    }
+}
+
+// User shoots either via voice detection or manually tapping target
+function manualShotTrigger() {
+    if (trainingState === 'HOLD') {
+        recordShotClick(false); // Successfully fired
+    }
+}
+
+function recordShotClick(isAborted) {
+    let holdDuration = 0;
+    
+    if (!isAborted) {
+        holdDuration = (Date.now() - holdStartTime) / 1000;
+        shotTimes.push(holdDuration);
+        
+        // Visual indicator flash
+        flashScreenIndicator("var(--color-follow)");
+        
+        // Log shot to session data
+        logShot(currentShotNumber, settings.mode, holdDuration, false);
+        
+        // Voice response
+        audio.playBeep(800, 0.15); // soft double beep start
+        setTimeout(() => audio.playBeep(800, 0.15), 180);
+        audio.speak(`Shot at ${holdDuration.toFixed(1)} seconds`);
+        
+        // Transition to follow-through
+        activeTimeMax = settings.followTime;
+        activeTimeLeft = activeTimeMax;
+        enterState('FOLLOW');
+    } else {
+        // Aborted shot
+        shotTimes.push(-1); // -1 represents aborted
+        flashScreenIndicator("var(--color-stop)");
+        
+        logShot(currentShotNumber, settings.mode, 0, true);
+        
+        audio.playBeep(350, 0.4); // low warning pitch
+        audio.speak("Abort, lower");
+        
+        // Direct to rest, skip follow-through
+        activeTimeMax = settings.restTime;
+        activeTimeLeft = activeTimeMax;
+        enterState('REST');
+    }
+    
+    updateMicroStats();
+    updateAnalyticsTab();
+}
+
+function playStateStartingAudio() {
+    switch (trainingState) {
+        case 'STARTING':
+            audio.speak("Starting dry fire practice.");
+            break;
+            
+        case 'PREP':
+            if (settings.mode === 'finals') {
+                audio.speak(`For the next single shot, LOAD.`);
+            } else if (settings.mode === 'coached') {
+                audio.speak("Breathe, establish stance.");
+            } else {
+                audio.speak("Prepare");
+                audio.playBeep(450, 0.25);
+            }
+            break;
+            
+        case 'HOLD':
+            if (settings.mode === 'finals') {
+                audio.playBeep(1200, 0.5);
+                audio.speak("START");
+            } else if (settings.mode === 'coached') {
+                audio.speak("Raise");
+                audio.playBeep(1200, 0.3);
+            } else {
+                audio.speak("Raise pistol");
+                audio.playBeep(1200, 0.3);
+            }
+            break;
+            
+        case 'FOLLOW':
+            if (settings.mode === 'coached') {
+                audio.speak("Hold");
+            }
+            break;
+            
+        case 'REST':
+            if (settings.mode === 'coached') {
+                audio.speak("Lower, relax");
+            } else {
+                audio.speak("Lower pistol");
+            }
+            audio.playBeep(500, 0.3);
+            break;
+            
+        case 'FINISHED':
+            audio.speak("Practice complete. Good training.");
+            audio.playBeep(1200, 0.25);
+            setTimeout(() => audio.playBeep(1200, 0.25), 300);
+            break;
+    }
+}
+
+// Verbal hints or alarms mid-phase
+function handleMidStateAudioEvents() {
+    const elapsed = activeTimeMax - activeTimeLeft;
+    
+    if (trainingState === 'HOLD') {
+        if (settings.mode === 'coached') {
+            const sec = Math.floor(elapsed);
+            if (sec === 3 && Math.abs(elapsed - 3) < 0.05) {
+                audio.speak("Settle");
+            } else if (sec === 7 && Math.abs(elapsed - 7) < 0.05) {
+                audio.speak("Focus sights");
+            } else if (sec === 11 && Math.abs(elapsed - 11) < 0.05) {
+                audio.speak("Release");
+            } else if (sec === 13 && Math.abs(elapsed - 13) < 0.05) {
+                audio.speak("Abort warning");
+            }
+        }
+    } else if (trainingState === 'PREP') {
+        if (settings.mode === 'finals') {
+            // Attention is given 5 seconds before START (5 seconds loading elapsed)
+            if (Math.abs(activeTimeLeft - 3.0) < 0.05) {
+                audio.speak("ATTENTION");
+            }
+        }
+    }
+}
+
+/* ==========================================================================
+   UI UPDATES
+   ========================================================================== */
+function updateVisualsForState() {
+    const ring = document.getElementById("progressCircle");
+    const phaseLabel = document.getElementById("currentPhaseLabel");
+    const badge = document.getElementById("instructionBadge");
+    
+    phaseLabel.textContent = trainingState.toUpperCase();
+    
+    let activeColor = "var(--color-idle)";
+    let desc = "";
+    
+    switch (trainingState) {
+        case 'STARTING':
+            activeColor = "var(--color-follow)";
+            desc = "GET READY";
+            break;
+        case 'PREP':
+            activeColor = "var(--color-prep)";
+            desc = (settings.mode === 'finals') ? "LOADING & BREATHING..." : "BREATHE AND FOCUS";
+            break;
+        case 'HOLD':
+            activeColor = "var(--color-hold)";
+            desc = "🎯 RAISE & FIRE";
+            break;
+        case 'FOLLOW':
+            activeColor = "var(--color-follow)";
+            desc = "👁️ ANALYZE SIGHT PICTURE";
+            break;
+        case 'REST':
+            activeColor = "var(--color-rest)";
+            desc = "⬇️ LOWER PISTOL & RELAX";
+            break;
+        case 'FINISHED':
+            activeColor = "var(--color-hold)";
+            desc = "PRACTICE COMPLETE";
+            break;
+        case 'IDLE':
+            activeColor = "var(--color-idle)";
+            desc = "PRESS START TO BEGIN";
+            break;
+    }
+    
+    // Update theme variable color
+    document.documentElement.style.setProperty('--active-color', activeColor);
+    badge.textContent = desc;
+    badge.style.color = activeColor;
+    
+    // Reset ring transition speed on state change to avoid delay
+    ring.style.transition = "none";
+    setTimeout(() => {
+        ring.style.transition = "stroke-dashoffset 0.1s linear, stroke 0.4s ease";
+    }, 50);
+}
+
+function updateProgressRing(percent) {
+    const circle = document.getElementById("progressCircle");
+    const radius = circle.r.baseVal.value;
+    const circumference = 2 * Math.PI * radius;
+    
+    // Ensure value ranges 0 to 1
+    const safePercent = Math.max(0, Math.min(1, percent));
+    const offset = circumference - (safePercent * circumference);
+    circle.style.strokeDashoffset = offset;
+}
+
+function updateMicroStats() {
+    const totalText = (settings.totalShots === 0) ? "∞" : settings.totalShots;
+    document.getElementById("microShotCount").textContent = `${currentShotNumber} / ${totalText}`;
+    
+    // Calculate Average
+    const validShots = shotTimes.filter(t => t > 0);
+    if (validShots.length > 0) {
+        const sum = validShots.reduce((a, b) => a + b, 0);
+        document.getElementById("microAvgHold").textContent = `${(sum / validShots.length).toFixed(1)}s`;
+    } else {
+        document.getElementById("microAvgHold").textContent = `0.0s`;
+    }
+}
+
+function flashScreenIndicator(color) {
+    const coachCard = document.querySelector(".coach-card");
+    const origBorder = coachCard.style.borderColor;
+    const origShadow = coachCard.style.boxShadow;
+    
+    coachCard.style.borderColor = color;
+    coachCard.style.boxShadow = `0 0 30px ${color}44`;
+    
+    setTimeout(() => {
+        coachCard.style.borderColor = "";
+        coachCard.style.boxShadow = "";
+    }, 400);
+}
+
+/* ==========================================================================
+   TAB SWITCHING & INTERFACES
+   ========================================================================== */
+function switchTab(evt, tabId) {
+    // Hide all tab contents
+    const contents = document.querySelectorAll(".tab-content");
+    contents.forEach(c => c.classList.remove("active"));
+    
+    // Deactivate all tab buttons
+    const buttons = document.querySelectorAll(".tab-btn");
+    buttons.forEach(b => b.classList.remove("active"));
+    
+    // Show current tab & set active button
+    document.getElementById(tabId).classList.add("active");
+    evt.currentTarget.classList.add("active");
+    
+    // Custom trigger if tab is History
+    if (tabId === 'historyTab') {
+        updateAnalyticsTab();
+    }
+}
+
+function toggleAccordion() {
+    const body = document.getElementById("accordionBody");
+    const arrow = document.getElementById("accordionArrow");
+    
+    body.classList.toggle("open");
+    if (body.classList.contains("open")) {
+        arrow.textContent = "▲";
+    } else {
+        arrow.textContent = "▼";
+    }
+}
+
+function applyPreset() {
+    const preset = document.getElementById("presetSelect").value;
+    if (preset === 'custom') return;
+    
+    const params = PRESETS[preset];
+    
+    document.getElementById("paramPrep").value = params.prepTime;
+    document.getElementById("paramHold").value = params.maxHoldTime;
+    document.getElementById("paramFollow").value = params.followTime;
+    document.getElementById("paramRest").value = params.restTime;
+    
+    updateParamLabel('Prep');
+    updateParamLabel('Hold');
+    updateParamLabel('Follow');
+    updateParamLabel('Rest');
+    
+    // Update local variables
+    settings.prepTime = params.prepTime;
+    settings.maxHoldTime = params.maxHoldTime;
+    settings.followTime = params.followTime;
+    settings.restTime = params.restTime;
+    
+    saveSettings();
+}
+
+function updateParamLabel(param) {
+    const val = document.getElementById(`param${param}`).value;
+    document.getElementById(`lbl${param}`).textContent = `${val}s`;
+    
+    // Sync to settings object
+    const key = param.toLowerCase() + "Time";
+    if (key === 'prepTime') settings.prepTime = parseInt(val);
+    if (key === 'holdTime') settings.maxHoldTime = parseInt(val);
+    if (key === 'followTime') settings.followTime = parseInt(val);
+    if (key === 'restTime') settings.restTime = parseInt(val);
+    
+    // Mark preset select as custom
+    document.getElementById("presetSelect").value = 'custom';
+    saveSettings();
+}
+
+function onModeChange() {
+    const mode = document.getElementById("trainingMode").value;
+    settings.mode = mode;
+    
+    const expl = document.getElementById("modeExplanation");
+    if (mode === 'classic') {
+        expl.textContent = "Standard loop of raise and rest.";
+    } else if (mode === 'finals') {
+        expl.textContent = "ISSF finals range commands, 50s single shot series.";
+    } else if (mode === 'coached') {
+        expl.textContent = "Voice coach guide for raise rhythm & abort checks.";
+    }
+    
+    saveSettings();
+    updateVisualsForState();
+}
+
+function onAudioSettingChange() {
+    settings.audioCues = document.getElementById("audioCuesSelect").value;
+    settings.volume = parseFloat(document.getElementById("paramVolume").value);
+    
+    // Update label
+    document.getElementById("lblVolume").textContent = `${Math.round(settings.volume * 100)}%`;
+    saveSettings();
+}
+
+function testAudio() {
+    audio.initCtx();
+    audio.playBeep(900, 0.3);
+    setTimeout(() => {
+        audio.speak("Audio config active");
+    }, 400);
+}
+
+/* MIC ACCESS & CONTROL */
+async function toggleMic() {
+    const enabled = document.getElementById("micToggle").checked;
+    settings.micEnabled = enabled;
+    saveSettings();
+    
+    if (enabled) {
+        if (!clickDetector) {
+            clickDetector = new ClickDetector(handleMicrophoneShot);
+        }
+        await clickDetector.enable();
+    } else {
+        if (clickDetector) {
+            clickDetector.disable();
+        }
+    }
+}
+
+function onThresholdChange() {
+    const val = parseFloat(document.getElementById("micThresholdSlider").value);
+    settings.micThreshold = val;
+    saveSettings();
+    
+    // Update marker location in CSS percentage
+    // Slider is min 0.01 to max 0.5. Map it to 0-100%
+    const ratio = (val - 0.01) / (0.5 - 0.01);
+    document.getElementById("micThresholdMarker").style.left = `${ratio * 100}%`;
+}
+
+/* ==========================================================================
+   SCALED TARGET GENERATOR
+   ========================================================================== */
+function getSvgHtml(scale, whiteBg = false) {
+    // ISSF 10m target dimensions (radius in mm, unscaled):
+    // 1-ring = 77.75, 2-ring = 69.75, 3-ring = 61.75, 4-ring = 53.75, 
+    // 5-ring = 45.75, 6-ring = 37.75, 7-ring = 29.75 (black boundary)
+    // 8-ring = 21.75, 9-ring = 13.75, 10-ring = 5.75, Inner 10 = 2.5
+    
+    const R1 = 77.75 * scale;
+    const R2 = 69.75 * scale;
+    const R3 = 61.75 * scale;
+    const R4 = 53.75 * scale;
+    const R5 = 45.75 * scale;
+    const R6 = 37.75 * scale;
+    const R7 = 29.75 * scale; // Outer black
+    const R8 = 21.75 * scale;
+    const R9 = 13.75 * scale;
+    const R10 = 5.75 * scale;
+    const R_in = 2.5 * scale;
+
+    const bgFill = whiteBg ? '#fff' : '#1e2126';
+    const paperStroke = whiteBg ? '#000' : '#454e59';
+    const textFill = whiteBg ? '#000' : '#888';
+    
+    return `
+    <svg id="scaledTargetSvg" width="200" height="200" viewBox="-85 -85 170 170" style="background:${bgFill};">
+        <!-- Background/Paper border -->
+        <rect x="-84" y="-84" width="168" height="168" fill="${bgFill}" stroke="${paperStroke}" stroke-width="0.5"/>
+        
+        <!-- White Ring Outlines (1 to 6) -->
+        <circle cx="0" cy="0" r="${R1}" stroke="${paperStroke}" stroke-width="0.3" fill="none"/>
+        <circle cx="0" cy="0" r="${R2}" stroke="${paperStroke}" stroke-width="0.3" fill="none"/>
+        <circle cx="0" cy="0" r="${R3}" stroke="${paperStroke}" stroke-width="0.3" fill="none"/>
+        <circle cx="0" cy="0" r="${R4}" stroke="${paperStroke}" stroke-width="0.3" fill="none"/>
+        <circle cx="0" cy="0" r="${R5}" stroke="${paperStroke}" stroke-width="0.3" fill="none"/>
+        <circle cx="0" cy="0" r="${R6}" stroke="${paperStroke}" stroke-width="0.3" fill="none"/>
+        
+        <!-- 7-ring and inside (Filled Solid Black) -->
+        <circle cx="0" cy="0" r="${R7}" fill="#000000" stroke="none"/>
+        
+        <!-- White details inside black (8, 9, 10, inner 10) -->
+        <circle cx="0" cy="0" r="${R8}" stroke="rgba(255,255,255,0.3)" stroke-width="0.25" fill="none"/>
+        <circle cx="0" cy="0" r="${R9}" stroke="rgba(255,255,255,0.3)" stroke-width="0.25" fill="none"/>
+        <circle cx="0" cy="0" r="${R10}" stroke="rgba(255,255,255,0.4)" stroke-width="0.25" fill="none"/>
+        <circle cx="0" cy="0" r="${R_in}" stroke="rgba(255,255,255,0.5)" stroke-width="0.2" fill="none"/>
+        
+        <!-- Center reference plus mark -->
+        <line x1="-1.5" y1="0" x2="1.5" y2="0" stroke="rgba(255,255,255,0.7)" stroke-width="0.3"/>
+        <line x1="0" y1="-1.5" x2="0" y2="1.5" stroke="rgba(255,255,255,0.7)" stroke-width="0.3"/>
+        
+        <!-- Rings indicator label text (unscaled outer rings, e.g. 1, 3, 5) -->
+        ${scale > 0.4 ? `
+        <text x="0" y="${-R5 + 3}" fill="${textFill}" font-size="5" text-anchor="middle">5</text>
+        <text x="0" y="${-R3 + 3}" fill="${textFill}" font-size="5" text-anchor="middle">3</text>
+        <text x="0" y="${-R1 + 3}" fill="${textFill}" font-size="5" text-anchor="middle">1</text>
+        ` : ''}
+    </svg>
+    `;
+}
+
+function updateTargetPreview() {
+    const d = parseFloat(document.getElementById("targetDistance").value);
+    const unit = document.getElementById("distanceUnit").value;
+    
+    let distanceMeters = d;
+    if (unit === 'feet') {
+        distanceMeters = d * 0.3048;
+    }
+    
+    // Scale multiplier: dry fire distance / 10m standard
+    const scale = distanceMeters / 10;
+    
+    // Render target SVG
+    document.getElementById("targetPreviewWrapper").innerHTML = getSvgHtml(scale, false);
+    
+    // Show black circle diameter label
+    const blackDiameterMm = (59.5 * scale).toFixed(2);
+    const tenRingDiameterMm = (11.5 * scale).toFixed(2);
+    document.getElementById("targetDimensionsLabel").textContent = `Black (7-Ring): ${blackDiameterMm}mm | 10-Ring: ${tenRingDiameterMm}mm`;
+}
+
+function printTarget() {
+    const d = parseFloat(document.getElementById("targetDistance").value);
+    const unit = document.getElementById("distanceUnit").value;
+    let distanceMeters = d;
+    if (unit === 'feet') {
+        distanceMeters = d * 0.3048;
+    }
+    
+    const scale = distanceMeters / 10;
+    
+    // Create physical printed wrapper size based on the 1-ring outer boundaries
+    // 1-ring diameter is 155.5 * scale. We add safety margins
+    const containerSizeMm = 155.5 * scale + 15;
+    
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Dry Fire Target - ${d} ${unit}</title>
+            <style>
+                body {
+                    margin: 0;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    min-height: 100vh;
+                    font-family: 'Segoe UI', Arial, sans-serif;
+                    background: #fff;
+                    color: #000;
+                    text-align: center;
+                }
+                .target-print-container {
+                    width: ${containerSizeMm}mm;
+                    height: ${containerSizeMm}mm;
+                    border: 0.5px dashed #ccc;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    page-break-inside: avoid;
+                }
+                .target-print-container svg {
+                    width: 100%;
+                    height: 100%;
+                }
+                .info-banner {
+                    margin-top: 30px;
+                    max-width: 450px;
+                }
+                h2 { margin: 0 0 5px 0; font-size: 18px; }
+                p { margin: 5px 0; font-size: 13px; color: #555; }
+                .btn-print {
+                    background: #000;
+                    color: #fff;
+                    padding: 10px 24px;
+                    border: none;
+                    border-radius: 6px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    margin-top: 15px;
+                }
+                @media print {
+                    .info-banner { display: none; }
+                    .target-print-container { border: none; }
+                    body { min-height: auto; }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="target-print-container">
+                ${getSvgHtml(scale, true)}
+            </div>
+            <div class="info-banner">
+                <h2>Scaled 10m Air Pistol Target</h2>
+                <p>Configured for <strong>${d} ${unit}</strong> simulated distance.</p>
+                <p>Ratio: <strong>${(scale * 100).toFixed(1)}%</strong> of full size.</p>
+                <p style="color: #c0392b; font-weight: 500;">⚠️ IMPORTANT: In your browser print settings, disable headers/footers and set scale to exactly <strong>100%</strong> (do not select 'Fit to Page').</p>
+                <button class="btn-print" onclick="window.print()">Print Target</button>
+            </div>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+}
+
+/* ==========================================================================
+   SESSION HISTORY LOGGER & ANALYTICS
+   ========================================================================== */
+function logShot(shotNum, mode, holdTime, isAborted) {
+    const shotData = {
+        sessionId: currentSessionId,
+        timestamp: Date.now(),
+        shotNum: shotNum,
+        mode: mode,
+        holdTime: isAborted ? 0 : parseFloat(holdTime.toFixed(2)),
+        result: isAborted ? 'Aborted' : 'Shot'
+    };
+    
+    let history = getHistory();
+    history.push(shotData);
+    localStorage.setItem("dryfire_companion_history", JSON.stringify(history));
+}
+
+function getHistory() {
+    const raw = localStorage.getItem("dryfire_companion_history");
+    return raw ? JSON.parse(raw) : [];
+}
+
+function deleteLogItem(timestamp) {
+    if (!confirm("Delete this shot log?")) return;
+    let history = getHistory();
+    history = history.filter(item => item.timestamp !== timestamp);
+    localStorage.setItem("dryfire_companion_history", JSON.stringify(history));
+    updateAnalyticsTab();
+    updateMicroStats();
+}
+
+function clearHistory() {
+    if (!confirm("Are you sure you want to delete your entire training history? This cannot be undone.")) return;
+    localStorage.removeItem("dryfire_companion_history");
+    updateAnalyticsTab();
+    updateMicroStats();
+}
+
+function updateAnalyticsTab() {
+    const history = getHistory();
+    
+    // Overall Stats
+    const totalShots = history.length;
+    const validShots = history.filter(h => h.result === 'Shot');
+    const aborts = history.filter(h => h.result === 'Aborted').length;
+    
+    document.getElementById("statsTotalShots").textContent = totalShots;
+    document.getElementById("statsAborts").textContent = aborts;
+    
+    let avgHold = 0;
+    let consistencyLabel = "--";
+    
+    if (validShots.length > 0) {
+        const sum = validShots.reduce((a, b) => a + b.holdTime, 0);
+        avgHold = sum / validShots.length;
+        document.getElementById("statsAvgHold").textContent = `${avgHold.toFixed(1)}s`;
+        
+        // Calculate standard deviation for consistency
+        const variances = validShots.map(h => Math.pow(h.holdTime - avgHold, 2));
+        const avgVariance = variances.reduce((a, b) => a + b, 0) / variances.length;
+        const stdDev = Math.sqrt(avgVariance);
+        
+        if (stdDev < 1.0) {
+            consistencyLabel = "EXCELLENT";
+        } else if (stdDev < 1.8) {
+            consistencyLabel = "GOOD";
+        } else {
+            consistencyLabel = "VARIABLE";
+        }
+    } else {
+        document.getElementById("statsAvgHold").textContent = `0.0s`;
+    }
+    document.getElementById("statsConsistency").textContent = consistencyLabel;
+    
+    // Render Bars Chart (Last 15 shots)
+    const chartBarsContainer = document.getElementById("holdTimesChart");
+    if (history.length === 0) {
+        chartBarsContainer.innerHTML = `<div style="color:var(--text-muted); font-size:12px; margin:auto;">No shots recorded yet.</div>`;
+    } else {
+        // Grab last 15 elements
+        const last15 = history.slice(-15);
+        chartBarsContainer.innerHTML = '';
+        
+        last15.forEach((item, idx) => {
+            const wrapper = document.createElement("div");
+            wrapper.className = "chart-bar-wrapper";
+            
+            const bar = document.createElement("div");
+            bar.className = "chart-bar";
+            if (item.result === 'Aborted') {
+                bar.classList.add("aborted");
+                bar.style.height = "100%"; // Full height for abort red indicator
+            } else {
+                // Percentage of maximum slider hold time (e.g. 15s)
+                const percent = Math.min((item.holdTime / settings.maxHoldTime) * 100, 100);
+                bar.style.height = `${percent}%`;
+            }
+            
+            // Tooltip
+            const tooltip = document.createElement("div");
+            tooltip.className = "chart-tooltip";
+            tooltip.textContent = item.result === 'Aborted' ? `Shot #${item.shotNum}: Aborted` : `Shot #${item.shotNum}: ${item.holdTime.toFixed(1)}s`;
+            bar.appendChild(tooltip);
+            
+            // X label
+            const label = document.createElement("div");
+            label.className = "chart-bar-label";
+            label.textContent = item.shotNum;
+            
+            wrapper.appendChild(bar);
+            wrapper.appendChild(label);
+            chartBarsContainer.appendChild(wrapper);
+        });
+    }
+    
+    // Render Table Logs
+    const tableBody = document.getElementById("logsTableBody");
+    if (history.length === 0) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="6" style="text-align:center; color:var(--text-muted); padding: 20px;">
+                    Your training shot history will appear here.
+                </td>
+            </tr>
+        `;
+    } else {
+        tableBody.innerHTML = '';
+        // Sort history by newest first
+        const sortedHistory = [...history].reverse();
+        sortedHistory.forEach(item => {
+            const row = document.createElement("tr");
+            
+            const dateStr = new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const holdText = item.result === 'Aborted' ? '--' : `${item.holdTime.toFixed(1)}s`;
+            const holdClass = item.result === 'Aborted' ? 'log-aborted' : 'log-time';
+            
+            row.innerHTML = `
+                <td>Shot ${item.shotNum}</td>
+                <td style="text-transform: capitalize;">${item.mode}</td>
+                <td class="${holdClass}">${holdText}</td>
+                <td>${item.result === 'Aborted' ? '🔴 Aborted' : '🟢 Completed'}</td>
+                <td style="color:var(--text-muted);">${dateStr}</td>
+                <td>
+                    <button class="btn-action-small" onclick="deleteLogItem(${item.timestamp})">🗑️</button>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+}
+
+function exportCSV() {
+    const history = getHistory();
+    if (history.length === 0) {
+        alert("No history data to export.");
+        return;
+    }
+    
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "Timestamp,Date,Shot Number,Training Mode,Hold Time (seconds),Result\n";
+    
+    history.forEach(item => {
+        const datetime = new Date(item.timestamp).toISOString();
+        csvContent += `"${datetime}","${new Date(item.timestamp).toLocaleDateString()}",${item.shotNum},"${item.mode}",${item.holdTime},"${item.result}"\n`;
+    });
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `dryfire_companion_history_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+/* ==========================================================================
+   SETTINGS PERSISTENCE
+   ========================================================================== */
+function saveSettings() {
+    localStorage.setItem("dryfire_companion_settings", JSON.stringify(settings));
+}
+
+function loadSettings() {
+    const raw = localStorage.getItem("dryfire_companion_settings");
+    if (raw) {
+        try {
+            const parsed = JSON.parse(raw);
+            settings = { ...settings, ...parsed };
+            
+            // Sync values to DOM inputs
+            document.getElementById("trainingMode").value = settings.mode;
+            document.getElementById("audioCuesSelect").value = settings.audioCues;
+            document.getElementById("paramVolume").value = settings.volume;
+            document.getElementById("lblVolume").textContent = `${Math.round(settings.volume * 100)}%`;
+            
+            document.getElementById("paramPrep").value = settings.prepTime;
+            document.getElementById("paramHold").value = settings.maxHoldTime;
+            document.getElementById("paramFollow").value = settings.followTime;
+            document.getElementById("paramRest").value = settings.restTime;
+            
+            updateParamLabel('Prep');
+            updateParamLabel('Hold');
+            updateParamLabel('Follow');
+            updateParamLabel('Rest');
+            
+            // Mic settings
+            document.getElementById("micToggle").checked = settings.micEnabled;
+            document.getElementById("micThresholdSlider").value = settings.micThreshold;
+            
+            // Sync slider marker position
+            const ratio = (settings.micThreshold - 0.01) / (0.5 - 0.01);
+            document.getElementById("micThresholdMarker").style.left = `${ratio * 100}%`;
+            
+            // Initialize mic if toggled on load
+            if (settings.micEnabled) {
+                toggleMic();
+            }
+        } catch (e) {
+            console.error("Error parsing saved settings:", e);
+        }
+    }
+    
+    onModeChange();
+}
+
+/* ==========================================================================
+   INITIALIZATION
+   ========================================================================== */
+window.addEventListener("DOMContentLoaded", () => {
+    // Add visual tap action on the target ring for dry fire shooters doing manual logging
+    document.getElementById("progressCircle").addEventListener("click", manualShotTrigger);
+    
+    loadSettings();
+    updateTargetPreview();
+    updateMicroStats();
+});
+</script>
+
+</body>
+</html>
