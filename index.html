@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>10m Pistol Dry Fire Companion</title>
 
+<!-- Font Awesome Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -786,13 +789,13 @@ input:checked + .slider-switch:before {
     <!-- Top Header -->
     <header>
         <div class="brand">
-            <span class="brand-icon">🎯</span>
+            <span class="brand-icon"><i class="fa-solid fa-crosshairs"></i></span>
             <div class="brand-text">
                 <h1>Dry Fire Companion</h1>
                 <p>10m Pistol Training System</p>
             </div>
         </div>
-        <div class="version-badge">v2.0 Premium</div>
+        <div class="version-badge">v2.1 Premium</div>
     </header>
     
     <!-- Main Two-Column Grid -->
@@ -837,30 +840,30 @@ input:checked + .slider-switch:before {
             
             <!-- Action Instruction Text -->
             <div class="status-badge" id="instructionBadge" style="color: var(--color-idle);">
-                PRESS START TO BEGIN
+                <i class="fa-solid fa-circle-play"></i> PRESS START TO BEGIN
             </div>
             
             <!-- Control Buttons -->
             <div class="controls-group">
                 <button class="btn btn-primary" id="startBtn" onclick="toggleTraining()">
-                    ▶️ Start Practice
+                    <i class="fa-solid fa-play"></i> Start Practice
                 </button>
                 <button class="btn btn-secondary" id="resetBtn" onclick="resetTraining()" disabled>
-                    🔄 Reset
+                    <i class="fa-solid fa-rotate-right"></i> Reset
                 </button>
             </div>
             
             <!-- Micro Stats Panel -->
             <div class="micro-stats">
-                <div class="micro-stat-card">
+                <div class="micro-stats-card" style="background: rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.03); border-radius: 8px; padding: 8px; text-align: center;">
                     <div class="micro-stat-val" id="microShotCount">0 / --</div>
                     <div class="micro-stat-lbl">Shots</div>
                 </div>
-                <div class="micro-stat-card">
+                <div class="micro-stats-card" style="background: rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.03); border-radius: 8px; padding: 8px; text-align: center;">
                     <div class="micro-stat-val" id="microAvgHold">0.0s</div>
                     <div class="micro-stat-lbl">Avg Hold</div>
                 </div>
-                <div class="micro-stat-card">
+                <div class="micro-stats-card" style="background: rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.03); border-radius: 8px; padding: 8px; text-align: center;">
                     <div class="micro-stat-val" id="microMicStatus" style="color: var(--color-rest);">OFF</div>
                     <div class="micro-stat-lbl">Mic Trigger</div>
                 </div>
@@ -873,10 +876,10 @@ input:checked + .slider-switch:before {
             
             <!-- Tab Headers -->
             <div class="tabs-header">
-                <button class="tab-btn active" onclick="switchTab(event, 'settingsTab')">⚙️ Settings</button>
-                <button class="tab-btn" onclick="switchTab(event, 'audioTab')">🎤 Audio & Trigger</button>
-                <button class="tab-btn" onclick="switchTab(event, 'targetTab')">🎯 Target Gen</button>
-                <button class="tab-btn" onclick="switchTab(event, 'historyTab')">📊 Analytics</button>
+                <button class="tab-btn active" onclick="switchTab(event, 'settingsTab')"><i class="fa-solid fa-sliders"></i> Settings</button>
+                <button class="tab-btn" onclick="switchTab(event, 'audioTab')"><i class="fa-solid fa-microphone"></i> Audio & Trigger</button>
+                <button class="tab-btn" onclick="switchTab(event, 'targetTab')"><i class="fa-solid fa-bullseye"></i> Target Gen</button>
+                <button class="tab-btn" onclick="switchTab(event, 'historyTab')"><i class="fa-solid fa-chart-line"></i> Analytics</button>
             </div>
             
             <!-- Tab Content: Settings -->
@@ -890,6 +893,8 @@ input:checked + .slider-switch:before {
                         <option value="classic">Classic Cycle (Paced)</option>
                         <option value="finals">ISSF Finals Simulator (Range Commands)</option>
                         <option value="coached">Coached Rhythm (Voice Prompts)</option>
+                        <option value="free">Free Fire Mode (Self-Paced)</option>
+                        <option value="reaction">Reaction Fire Mode (Speed Drill)</option>
                     </select>
                 </div>
                 
@@ -920,7 +925,7 @@ input:checked + .slider-switch:before {
                 <div>
                     <div class="accordion-header" id="accordionHeader" onclick="toggleAccordion()">
                         <span>Custom Interval Configurations (Seconds)</span>
-                        <span id="accordionArrow">▼</span>
+                        <span id="accordionArrow"><i class="fa-solid fa-chevron-down"></i></span>
                     </div>
                     <div class="accordion-body" id="accordionBody">
                         
@@ -1024,7 +1029,7 @@ input:checked + .slider-switch:before {
                 </div>
                 
                 <button class="btn btn-secondary" onclick="testAudio()" style="margin-top: 5px;">
-                    🔊 Test Audio Configuration
+                    <i class="fa-solid fa-volume-high"></i> Test Audio Configuration
                 </button>
                 
             </div>
@@ -1047,7 +1052,7 @@ input:checked + .slider-switch:before {
                 </div>
                 
                 <div class="target-preview-box">
-                    <div class="target-wrapper" id="targetPreviewWrapper">
+                    <div class="target-wrapper" id="targetPreviewWrapper" onclick="handleTargetClick(event)" style="cursor: crosshair; user-select: none;">
                         <!-- Rendered SVG will go here -->
                     </div>
                     <div style="text-align:center;">
@@ -1058,8 +1063,51 @@ input:checked + .slider-switch:before {
                     </div>
                 </div>
                 
+                <!-- Target Marking Controls & Scoreboard -->
+                <div style="margin: 10px 0; background: rgba(0,0,0,0.25); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color);">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px;">
+                        <div>
+                            <div style="font-size: 11px; color: var(--text-muted);">Shots Placed</div>
+                            <div style="font-size: 16px; font-weight: 700; color: #fff;" id="targetPlacedCount">0</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: var(--text-muted);">Total Score</div>
+                            <div style="font-size: 16px; font-weight: 700; color: var(--color-hold);" id="targetTotalScore">0 (0.0 dec)</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: var(--text-muted);">Last Shot</div>
+                            <div style="font-size: 16px; font-weight: 700; color: var(--color-follow);" id="targetLastScore">--</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Shot Series List Row -->
+                    <div style="margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px;">
+                        <div style="font-size: 11px; font-weight: 600; margin-bottom: 6px; color: var(--text-muted);">
+                            <i class="fa-solid fa-list-ol"></i> Shot Series List:
+                        </div>
+                        <div id="targetShotSeriesList" style="display: block; max-height: 150px; overflow-y: auto; padding: 2px 0;">
+                            <span style="font-size: 11px; color: var(--text-muted); font-style: italic;">No shots plotted yet. Click target above.</span>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-size: 11px; color: var(--text-muted);">
+                            <i class="fa-solid fa-circle-info"></i> Click target above to plot shots.
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer; user-select: none; margin: 0;">
+                                <input type="checkbox" id="chkShowMarkers" checked onchange="updateTargetPreview()" style="margin: 0; width: 14px; height: 14px;">
+                                Show Marks
+                            </label>
+                            <button class="btn btn-secondary" onclick="clearTargetMarkers()" style="padding: 4px 8px; font-size: 11px; margin: 0; min-height: auto;">
+                                <i class="fa-solid fa-eraser"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
                 <button class="btn btn-primary" onclick="printTarget()">
-                    🖨️ Print Scaled Target (PDF/Print)
+                    <i class="fa-solid fa-print"></i> Print Scaled Target (PDF/Print)
                 </button>
                 
             </div>
@@ -1071,19 +1119,19 @@ input:checked + .slider-switch:before {
                 <div class="history-stats-grid">
                     <div class="stat-box">
                         <div class="stat-number" id="statsTotalShots">0</div>
-                        <div class="stat-label">Total Shots</div>
+                        <div class="stat-label" id="statsTotalShotsLabel">Total Shots</div>
                     </div>
                     <div class="stat-box">
                         <div class="stat-number" id="statsAvgHold">0.0s</div>
                         <div class="stat-label">Avg Hold</div>
                     </div>
                     <div class="stat-box">
-                        <div class="stat-number" id="statsConsistency">--</div>
-                        <div class="stat-label">Consistency</div>
+                        <div class="stat-number" id="statsAvgReact">0.00s</div>
+                        <div class="stat-label">Avg Reaction</div>
                     </div>
                     <div class="stat-box">
-                        <div class="stat-number" id="statsAborts">0</div>
-                        <div class="stat-label">Aborted</div>
+                        <div class="stat-number" id="statsConsistency">--</div>
+                        <div class="stat-label">Consistency</div>
                     </div>
                 </div>
                 
@@ -1121,10 +1169,10 @@ input:checked + .slider-switch:before {
                 
                 <div class="history-actions">
                     <button class="btn btn-secondary" onclick="exportCSV()" style="padding: 10px 16px; font-size: 13px;">
-                        📥 Export CSV
+                        <i class="fa-solid fa-file-export"></i> Export CSV
                     </button>
                     <button class="btn btn-secondary" onclick="clearHistory()" style="padding: 10px 16px; font-size: 13px; color: var(--color-stop);">
-                        🗑️ Clear All
+                        <i class="fa-solid fa-trash-can"></i> Clear All
                     </button>
                 </div>
                 
@@ -1158,17 +1206,15 @@ class AudioEngine {
 
     initSpeech() {
         if ('speechSynthesis' in window) {
-            // Load voices
             window.speechSynthesis.onvoiceschanged = () => {
                 const voices = window.speechSynthesis.getVoices();
-                // Prefer English standard voice
                 this.voice = voices.find(v => v.lang.startsWith('en')) || voices[0];
             };
         }
     }
 
-    playBeep(freq, duration, volMultiplier = 1) {
-        if (settings.audioCues === 'voice' || settings.audioCues === 'none') return;
+    playBeep(freq, duration, volMultiplier = 1, forcePlay = false) {
+        if (!forcePlay && (settings.audioCues === 'voice' || settings.audioCues === 'none')) return;
         
         this.initCtx();
         try {
@@ -1178,11 +1224,11 @@ class AudioEngine {
             osc.type = 'sine';
             osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
             
-            // Apply volume setting
             const volume = parseFloat(settings.volume) * volMultiplier;
-            gainNode.gain.setValueAtTime(0.0001, this.ctx.currentTime);
-            gainNode.gain.linearRampToValueAtTime(volume, this.ctx.currentTime + 0.05);
-            gainNode.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+            
+            // Set initial volume and linear decay to prevent popping/clicking and avoid RangeError bugs
+            gainNode.gain.setValueAtTime(volume, this.ctx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0, this.ctx.currentTime + duration);
             
             osc.connect(gainNode);
             gainNode.connect(this.ctx.destination);
@@ -1194,16 +1240,15 @@ class AudioEngine {
         }
     }
 
-    speak(text) {
-        if (settings.audioCues === 'beeps' || settings.audioCues === 'none') return;
+    speak(text, forcePlay = false) {
+        if (!forcePlay && (settings.audioCues === 'beeps' || settings.audioCues === 'none')) return;
         
         if ('speechSynthesis' in window) {
             try {
-                window.speechSynthesis.cancel(); // Cancel any active queue
+                window.speechSynthesis.cancel();
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.volume = parseFloat(settings.volume);
                 
-                // Voice speed setting
                 utterance.rate = 1.05; 
                 
                 if (this.voice) {
@@ -1290,19 +1335,16 @@ class ClickDetector {
         
         this.analyser.getByteTimeDomainData(this.dataArray);
         
-        // Find Peak Amplitude (normalized to 0-1)
         let maxVal = 0;
         for (let i = 0; i < this.bufferLength; i++) {
-            const val = Math.abs(this.dataArray[i] - 128); // center 128
+            const val = Math.abs(this.dataArray[i] - 128);
             if (val > maxVal) maxVal = val;
         }
         const volume = maxVal / 128;
         
-        // Update visual meter
         const percentage = Math.min(volume * 100, 100);
         document.getElementById("micVolumeBar").style.width = `${percentage}%`;
         
-        // Check for click
         const threshold = parseFloat(settings.micThreshold);
         const now = Date.now();
         
@@ -1315,31 +1357,30 @@ class ClickDetector {
     }
 }
 
-// Instantiate detector
 let clickDetector = null;
 
 function handleMicrophoneShot(volume) {
-    // Only register shot if we are active and in the HOLD state
-    if (trainingState === 'HOLD') {
-        recordShotClick(false); // Fired successfully
+    if (trainingState === 'HOLD' || trainingState === 'REACTION_FIRE' || trainingState === 'FREE_FIRE') {
+        recordShotClick(false);
+    } else if (trainingState === 'REACTION_AIM') {
+        triggerFalseStart();
     }
 }
 
 /* ==========================================================================
    APP CONFIG & CONSTANTS
    ========================================================================== */
-let trainingState = 'IDLE'; // IDLE, STARTING, PREP, HOLD, FOLLOW, REST, FINISHED
+let trainingState = 'IDLE'; 
 let paused = false;
 let timerId = null;
 
 let currentSessionId = null;
 let currentShotNumber = 0;
-let shotTimes = []; // hold durations for current session
-let holdStartTime = 0; // timestamp when raise started
-let activeTimeLeft = 0; // seconds left in current state
-let activeTimeMax = 1; // max duration of current state
+let shotTimes = []; 
+let holdStartTime = 0; 
+let activeTimeLeft = 0; 
+let activeTimeMax = 1; 
 
-// Default App Settings
 let settings = {
     mode: 'classic',
     totalShots: 10,
@@ -1347,15 +1388,14 @@ let settings = {
     maxHoldTime: 15,
     followTime: 3,
     restTime: 20,
-    finalsPrepTime: 10, // Loading time in finals
-    finalsHoldTime: 50, // ISSF Rule hold time limit
+    finalsPrepTime: 10,
+    finalsHoldTime: 50,
     audioCues: 'both',
     volume: 0.5,
     micEnabled: false,
     micThreshold: 0.15
 };
 
-// Presets
 const PRESETS = {
     standard: { prepTime: 5, maxHoldTime: 15, followTime: 3, restTime: 20 },
     endurance: { prepTime: 5, maxHoldTime: 30, followTime: 3, restTime: 30 },
@@ -1366,24 +1406,22 @@ const PRESETS = {
    STATE MACHINE & TIMER LOGIC
    ========================================================================== */
 function toggleTraining() {
-    audio.initCtx(); // Resume AudioContext on user interaction
+    audio.initCtx();
     
     const startBtn = document.getElementById("startBtn");
     
     if (trainingState === 'IDLE' || trainingState === 'FINISHED') {
-        // Start new session
         startNewSession();
     } else {
-        // Pause / Resume
         if (!paused) {
             paused = true;
-            startBtn.innerHTML = "▶️ Resume";
-            document.getElementById("instructionBadge").textContent = "⏸️ PRACTICE PAUSED";
+            startBtn.innerHTML = "<i class='fa-solid fa-play'></i> Resume";
+            document.getElementById("instructionBadge").innerHTML = "<i class='fa-solid fa-circle-pause'></i> PRACTICE PAUSED";
             document.getElementById("instructionBadge").style.color = "var(--color-prep)";
             audio.speak("Pause");
         } else {
             paused = false;
-            startBtn.innerHTML = "⏸️ Pause";
+            startBtn.innerHTML = "<i class='fa-solid fa-pause'></i> Pause";
             updateVisualsForState();
             audio.speak("Resume");
         }
@@ -1398,21 +1436,17 @@ function startNewSession() {
     currentSessionId = Date.now();
     
     document.getElementById("resetBtn").disabled = false;
-    document.getElementById("startBtn").innerHTML = "⏸️ Pause";
+    document.getElementById("startBtn").innerHTML = "<i class='fa-solid fa-pause'></i> Pause";
     
-    // Load config settings
     settings.totalShots = parseInt(document.getElementById("totalShotsSelect").value);
     
-    // UI update
     updateMicroStats();
     
-    // Setup state
-    activeTimeLeft = 5; // 5 seconds initial prep countdown
+    activeTimeLeft = 5; 
     activeTimeMax = 5;
     
     enterState('STARTING');
     
-    // Start interval loop
     if (timerId) clearInterval(timerId);
     timerId = setInterval(tick, 100);
 }
@@ -1429,13 +1463,13 @@ function resetTraining() {
     shotTimes = [];
     
     const startBtn = document.getElementById("startBtn");
-    startBtn.innerHTML = "▶️ Start Practice";
+    startBtn.innerHTML = "<i class='fa-solid fa-play'></i> Start Practice";
     startBtn.disabled = false;
     
     document.getElementById("resetBtn").disabled = true;
     document.getElementById("currentPhaseLabel").textContent = "READY";
     document.getElementById("timerValue").textContent = "0.0";
-    document.getElementById("instructionBadge").textContent = "PRESS START TO BEGIN";
+    document.getElementById("instructionBadge").innerHTML = "<i class='fa-solid fa-circle-play'></i> PRESS START TO BEGIN";
     document.getElementById("instructionBadge").style.color = "var(--color-idle)";
     
     updateProgressRing(0);
@@ -1446,16 +1480,30 @@ function resetTraining() {
 function tick() {
     if (paused) return;
     
+    if (trainingState === 'FREE_FIRE') {
+        activeTimeLeft += 0.1;
+        document.getElementById("timerValue").textContent = activeTimeLeft.toFixed(1);
+        updateProgressRing(1);
+        return;
+    }
+    
     activeTimeLeft -= 0.1;
-    if (activeTimeLeft <= 0.05) { // floating point tolerance
+    if (activeTimeLeft <= 0.05) { 
         activeTimeLeft = 0;
         transitionNextState();
     } else {
-        // Update timer text and progress ring
-        document.getElementById("timerValue").textContent = activeTimeLeft.toFixed(1);
-        updateProgressRing(activeTimeLeft / activeTimeMax);
+        if (trainingState === 'REACTION_AIM') {
+            document.getElementById("timerValue").textContent = "WAIT";
+            updateProgressRing(0);
+        } else if (trainingState === 'REACTION_FIRE') {
+            const elapsed = activeTimeMax - activeTimeLeft;
+            document.getElementById("timerValue").textContent = elapsed.toFixed(2);
+            updateProgressRing(activeTimeLeft / activeTimeMax);
+        } else {
+            document.getElementById("timerValue").textContent = activeTimeLeft.toFixed(1);
+            updateProgressRing(activeTimeLeft / activeTimeMax);
+        }
         
-        // Coached / finals mid-state voices
         handleMidStateAudioEvents();
     }
 }
@@ -1465,10 +1513,9 @@ function enterState(newState) {
     paused = false;
     updateVisualsForState();
     
-    // Sound signals & speech Synthesis
     playStateStartingAudio();
     
-    if (newState === 'HOLD') {
+    if (newState === 'HOLD' || newState === 'REACTION_AIM' || newState === 'FREE_FIRE') {
         holdStartTime = Date.now();
     }
 }
@@ -1480,20 +1527,41 @@ function transitionNextState() {
         case 'STARTING':
             currentShotNumber = 1;
             updateMicroStats();
-            activeTimeMax = (settings.mode === 'finals') ? settings.finalsPrepTime : settings.prepTime;
-            activeTimeLeft = activeTimeMax;
-            enterState('PREP');
+            if (settings.mode === 'free') {
+                activeTimeMax = 0;
+                activeTimeLeft = 0;
+                enterState('FREE_FIRE');
+            } else {
+                activeTimeMax = (settings.mode === 'finals') ? settings.finalsPrepTime : settings.prepTime;
+                activeTimeLeft = activeTimeMax;
+                enterState('PREP');
+            }
             break;
             
         case 'PREP':
-            activeTimeMax = (settings.mode === 'finals') ? settings.finalsHoldTime : settings.maxHoldTime;
+            if (settings.mode === 'reaction') {
+                activeTimeMax = 3.0 + Math.random() * 4.0;
+                activeTimeLeft = activeTimeMax;
+                enterState('REACTION_AIM');
+            } else {
+                activeTimeMax = (settings.mode === 'finals') ? settings.finalsHoldTime : settings.maxHoldTime;
+                activeTimeLeft = activeTimeMax;
+                enterState('HOLD');
+            }
+            break;
+            
+        case 'REACTION_AIM':
+            activeTimeMax = 3.0; 
             activeTimeLeft = activeTimeMax;
-            enterState('HOLD');
+            enterState('REACTION_FIRE');
+            break;
+            
+        case 'REACTION_FIRE':
+            recordShotClick(true); 
             break;
             
         case 'HOLD':
-            // If we reached here without a shot click, it's an abort (Time limit exceeded)
-            recordShotClick(true); // Log as Aborted
+            recordShotClick(true); 
             break;
             
         case 'FOLLOW':
@@ -1504,18 +1572,19 @@ function transitionNextState() {
             
         case 'REST':
             if (totalSelected === 0 || currentShotNumber < totalSelected) {
-                // Next Shot
                 currentShotNumber++;
                 updateMicroStats();
                 activeTimeMax = (settings.mode === 'finals') ? settings.finalsPrepTime : settings.prepTime;
                 activeTimeLeft = activeTimeMax;
                 enterState('PREP');
             } else {
-                // Done!
                 activeTimeMax = 1;
                 activeTimeLeft = 0;
                 enterState('FINISHED');
             }
+            break;
+            
+        case 'FREE_FIRE':
             break;
             
         case 'FINISHED':
@@ -1524,46 +1593,106 @@ function transitionNextState() {
     }
 }
 
-// User shoots either via voice detection or manually tapping target
 function manualShotTrigger() {
-    if (trainingState === 'HOLD') {
-        recordShotClick(false); // Successfully fired
+    if (trainingState === 'HOLD' || trainingState === 'REACTION_FIRE' || trainingState === 'FREE_FIRE') {
+        recordShotClick(false);
+    } else if (trainingState === 'REACTION_AIM') {
+        triggerFalseStart();
     }
+}
+
+function triggerFalseStart() {
+    shotTimes.push(-1);
+    flashScreenIndicator("var(--color-stop)");
+    logShot(currentShotNumber, 'reaction', 0, true);
+    
+    audio.playBeep(350, 0.4);
+    audio.speak("False start, lower");
+    
+    activeTimeMax = settings.restTime;
+    activeTimeLeft = activeTimeMax;
+    enterState('REST');
+    
+    updateMicroStats();
+    updateAnalyticsTab();
 }
 
 function recordShotClick(isAborted) {
     let holdDuration = 0;
     
+    if (settings.mode === 'free') {
+        holdDuration = activeTimeLeft;
+        shotTimes.push(holdDuration);
+        
+        flashScreenIndicator("var(--color-follow)");
+        logShot(currentShotNumber, 'free', holdDuration, false);
+        
+        audio.playBeep(800, 0.15);
+        setTimeout(() => audio.playBeep(800, 0.15), 180);
+        audio.speak(`Shot ${currentShotNumber} logged. Split is ${holdDuration.toFixed(1)} seconds`);
+        
+        activeTimeLeft = 0;
+        currentShotNumber++;
+        updateMicroStats();
+        updateAnalyticsTab();
+        return;
+    }
+    
+    if (trainingState === 'REACTION_FIRE') {
+        if (!isAborted) {
+            holdDuration = activeTimeMax - activeTimeLeft; 
+            shotTimes.push(holdDuration);
+            
+            flashScreenIndicator("var(--color-follow)");
+            logShot(currentShotNumber, 'reaction', holdDuration, false);
+            
+            audio.playBeep(1200, 0.1);
+            setTimeout(() => audio.playBeep(1200, 0.1), 120);
+            audio.speak(`${holdDuration.toFixed(2)} seconds reaction`);
+            
+            activeTimeMax = settings.followTime;
+            activeTimeLeft = activeTimeMax;
+            enterState('FOLLOW');
+        } else {
+            shotTimes.push(-1);
+            flashScreenIndicator("var(--color-stop)");
+            logShot(currentShotNumber, 'reaction', 0, true);
+            
+            audio.playBeep(350, 0.4);
+            audio.speak("Too slow, abort");
+            
+            activeTimeMax = settings.restTime;
+            activeTimeLeft = activeTimeMax;
+            enterState('REST');
+        }
+        
+        updateMicroStats();
+        updateAnalyticsTab();
+        return;
+    }
+    
     if (!isAborted) {
         holdDuration = (Date.now() - holdStartTime) / 1000;
         shotTimes.push(holdDuration);
         
-        // Visual indicator flash
         flashScreenIndicator("var(--color-follow)");
-        
-        // Log shot to session data
         logShot(currentShotNumber, settings.mode, holdDuration, false);
         
-        // Voice response
-        audio.playBeep(800, 0.15); // soft double beep start
+        audio.playBeep(800, 0.15);
         setTimeout(() => audio.playBeep(800, 0.15), 180);
         audio.speak(`Shot at ${holdDuration.toFixed(1)} seconds`);
         
-        // Transition to follow-through
         activeTimeMax = settings.followTime;
         activeTimeLeft = activeTimeMax;
         enterState('FOLLOW');
     } else {
-        // Aborted shot
-        shotTimes.push(-1); // -1 represents aborted
+        shotTimes.push(-1);
         flashScreenIndicator("var(--color-stop)");
-        
         logShot(currentShotNumber, settings.mode, 0, true);
         
-        audio.playBeep(350, 0.4); // low warning pitch
+        audio.playBeep(350, 0.4);
         audio.speak("Abort, lower");
         
-        // Direct to rest, skip follow-through
         activeTimeMax = settings.restTime;
         activeTimeLeft = activeTimeMax;
         enterState('REST');
@@ -1588,6 +1717,15 @@ function playStateStartingAudio() {
                 audio.speak("Prepare");
                 audio.playBeep(450, 0.25);
             }
+            break;
+            
+        case 'REACTION_AIM':
+            audio.speak("Stand by");
+            audio.playBeep(450, 0.2);
+            break;
+            
+        case 'REACTION_FIRE':
+            audio.playBeep(1000, 0.3, 1.5);
             break;
             
         case 'HOLD':
@@ -1618,6 +1756,10 @@ function playStateStartingAudio() {
             audio.playBeep(500, 0.3);
             break;
             
+        case 'FREE_FIRE':
+            audio.speak("Free shoot started");
+            break;
+            
         case 'FINISHED':
             audio.speak("Practice complete. Good training.");
             audio.playBeep(1200, 0.25);
@@ -1626,7 +1768,6 @@ function playStateStartingAudio() {
     }
 }
 
-// Verbal hints or alarms mid-phase
 function handleMidStateAudioEvents() {
     const elapsed = activeTimeMax - activeTimeLeft;
     
@@ -1645,7 +1786,6 @@ function handleMidStateAudioEvents() {
         }
     } else if (trainingState === 'PREP') {
         if (settings.mode === 'finals') {
-            // Attention is given 5 seconds before START (5 seconds loading elapsed)
             if (Math.abs(activeTimeLeft - 3.0) < 0.05) {
                 audio.speak("ATTENTION");
             }
@@ -1669,40 +1809,50 @@ function updateVisualsForState() {
     switch (trainingState) {
         case 'STARTING':
             activeColor = "var(--color-follow)";
-            desc = "GET READY";
+            desc = "<i class='fa-solid fa-hourglass-start'></i> GET READY";
             break;
         case 'PREP':
             activeColor = "var(--color-prep)";
-            desc = (settings.mode === 'finals') ? "LOADING & BREATHING..." : "BREATHE AND FOCUS";
+            desc = (settings.mode === 'finals') ? "<i class='fa-solid fa-wind'></i> LOADING & BREATHING..." : "<i class='fa-solid fa-wind'></i> BREATHE AND FOCUS";
+            break;
+        case 'REACTION_AIM':
+            activeColor = "var(--color-prep)";
+            desc = "<i class='fa-solid fa-hourglass-half'></i> HOLD SIGHT DIAL... STAND BY";
+            break;
+        case 'REACTION_FIRE':
+            activeColor = "var(--color-stop)";
+            desc = "<i class='fa-solid fa-bolt'></i> FIRE NOW!";
             break;
         case 'HOLD':
             activeColor = "var(--color-hold)";
-            desc = "🎯 RAISE & FIRE";
+            desc = "<i class='fa-solid fa-crosshairs'></i> RAISE & AIM TARGET";
             break;
         case 'FOLLOW':
             activeColor = "var(--color-follow)";
-            desc = "👁️ ANALYZE SIGHT PICTURE";
+            desc = "<i class='fa-solid fa-eye'></i> SIGHT PICTURE FOLLOW-THROUGH";
             break;
         case 'REST':
             activeColor = "var(--color-rest)";
-            desc = "⬇️ LOWER PISTOL & RELAX";
+            desc = "<i class='fa-solid fa-circle-down'></i> LOWER PISTOL & REST";
+            break;
+        case 'FREE_FIRE':
+            activeColor = "var(--color-hold)";
+            desc = "<i class='fa-solid fa-bullseye'></i> FREE SHOOTING (CLICK TO LOG)";
             break;
         case 'FINISHED':
             activeColor = "var(--color-hold)";
-            desc = "PRACTICE COMPLETE";
+            desc = "<i class='fa-solid fa-circle-check'></i> PRACTICE COMPLETE";
             break;
         case 'IDLE':
             activeColor = "var(--color-idle)";
-            desc = "PRESS START TO BEGIN";
+            desc = "<i class='fa-solid fa-circle-play'></i> PRESS START TO BEGIN";
             break;
     }
     
-    // Update theme variable color
     document.documentElement.style.setProperty('--active-color', activeColor);
-    badge.textContent = desc;
+    badge.innerHTML = desc;
     badge.style.color = activeColor;
     
-    // Reset ring transition speed on state change to avoid delay
     ring.style.transition = "none";
     setTimeout(() => {
         ring.style.transition = "stroke-dashoffset 0.1s linear, stroke 0.4s ease";
@@ -1714,7 +1864,6 @@ function updateProgressRing(percent) {
     const radius = circle.r.baseVal.value;
     const circumference = 2 * Math.PI * radius;
     
-    // Ensure value ranges 0 to 1
     const safePercent = Math.max(0, Math.min(1, percent));
     const offset = circumference - (safePercent * circumference);
     circle.style.strokeDashoffset = offset;
@@ -1722,9 +1871,13 @@ function updateProgressRing(percent) {
 
 function updateMicroStats() {
     const totalText = (settings.totalShots === 0) ? "∞" : settings.totalShots;
-    document.getElementById("microShotCount").textContent = `${currentShotNumber} / ${totalText}`;
     
-    // Calculate Average
+    if (settings.mode === 'free') {
+        document.getElementById("microShotCount").textContent = `${currentShotNumber - 1} / --`;
+    } else {
+        document.getElementById("microShotCount").textContent = `${currentShotNumber} / ${totalText}`;
+    }
+    
     const validShots = shotTimes.filter(t => t > 0);
     if (validShots.length > 0) {
         const sum = validShots.reduce((a, b) => a + b, 0);
@@ -1736,9 +1889,6 @@ function updateMicroStats() {
 
 function flashScreenIndicator(color) {
     const coachCard = document.querySelector(".coach-card");
-    const origBorder = coachCard.style.borderColor;
-    const origShadow = coachCard.style.boxShadow;
-    
     coachCard.style.borderColor = color;
     coachCard.style.boxShadow = `0 0 30px ${color}44`;
     
@@ -1752,19 +1902,15 @@ function flashScreenIndicator(color) {
    TAB SWITCHING & INTERFACES
    ========================================================================== */
 function switchTab(evt, tabId) {
-    // Hide all tab contents
     const contents = document.querySelectorAll(".tab-content");
     contents.forEach(c => c.classList.remove("active"));
     
-    // Deactivate all tab buttons
     const buttons = document.querySelectorAll(".tab-btn");
     buttons.forEach(b => b.classList.remove("active"));
     
-    // Show current tab & set active button
     document.getElementById(tabId).classList.add("active");
     evt.currentTarget.classList.add("active");
     
-    // Custom trigger if tab is History
     if (tabId === 'historyTab') {
         updateAnalyticsTab();
     }
@@ -1776,9 +1922,9 @@ function toggleAccordion() {
     
     body.classList.toggle("open");
     if (body.classList.contains("open")) {
-        arrow.textContent = "▲";
+        arrow.innerHTML = "<i class='fa-solid fa-chevron-up'></i>";
     } else {
-        arrow.textContent = "▼";
+        arrow.innerHTML = "<i class='fa-solid fa-chevron-down'></i>";
     }
 }
 
@@ -1798,7 +1944,6 @@ function applyPreset() {
     updateParamLabel('Follow');
     updateParamLabel('Rest');
     
-    // Update local variables
     settings.prepTime = params.prepTime;
     settings.maxHoldTime = params.maxHoldTime;
     settings.followTime = params.followTime;
@@ -1811,14 +1956,12 @@ function updateParamLabel(param) {
     const val = document.getElementById(`param${param}`).value;
     document.getElementById(`lbl${param}`).textContent = `${val}s`;
     
-    // Sync to settings object
     const key = param.toLowerCase() + "Time";
     if (key === 'prepTime') settings.prepTime = parseInt(val);
     if (key === 'holdTime') settings.maxHoldTime = parseInt(val);
     if (key === 'followTime') settings.followTime = parseInt(val);
     if (key === 'restTime') settings.restTime = parseInt(val);
     
-    // Mark preset select as custom
     document.getElementById("presetSelect").value = 'custom';
     saveSettings();
 }
@@ -1834,6 +1977,10 @@ function onModeChange() {
         expl.textContent = "ISSF finals range commands, 50s single shot series.";
     } else if (mode === 'coached') {
         expl.textContent = "Voice coach guide for raise rhythm & abort checks.";
+    } else if (mode === 'free') {
+        expl.textContent = "Self-paced shooting. Timer counts up. Logs shots on click with split times.";
+    } else if (mode === 'reaction') {
+        expl.textContent = "Aim at target. A random buzzer sounds. Fire as fast as possible.";
     }
     
     saveSettings();
@@ -1851,9 +1998,9 @@ function onAudioSettingChange() {
 
 function testAudio() {
     audio.initCtx();
-    audio.playBeep(900, 0.3);
+    audio.playBeep(900, 0.3, 1, true);
     setTimeout(() => {
-        audio.speak("Audio config active");
+        audio.speak("Audio config active", true);
     }, 400);
 }
 
@@ -1889,34 +2036,83 @@ function onThresholdChange() {
 /* ==========================================================================
    SCALED TARGET GENERATOR
    ========================================================================== */
-function getSvgHtml(scale, whiteBg = false) {
-    // ISSF 10m target dimensions (radius in mm, unscaled):
-    // 1-ring = 77.75, 2-ring = 69.75, 3-ring = 61.75, 4-ring = 53.75, 
-    // 5-ring = 45.75, 6-ring = 37.75, 7-ring = 29.75 (black boundary)
-    // 8-ring = 21.75, 9-ring = 13.75, 10-ring = 5.75, Inner 10 = 2.5
+let targetMarkers = [];
+
+function getShotScore(unscaledX, unscaledY) {
+    const d = Math.sqrt(unscaledX * unscaledX + unscaledY * unscaledY);
     
+    // Standard 10m Air Pistol target ring boundaries (radius in mm + 2.25mm pellet radius)
+    // 1-ring boundary is 77.75 + 2.25 = 80.00mm
+    if (d > 80.0) {
+        return { integer: 0, decimal: 0.0 };
+    }
+    
+    // Decimal score: 11.0 - (d / 8.0) capped at 10.9
+    let decimal = 11.0 - (d / 8.0);
+    if (decimal > 10.9) decimal = 10.9;
+    
+    // Integer score: standard inward gauging
+    // Ring radii are spaced exactly 8.0mm apart: 5.75, 13.75, 21.75, etc.
+    let integer = Math.ceil(10 - (d - 2.25) / 8.0);
+    if (integer > 10) integer = 10;
+    if (integer < 1) integer = 1;
+    
+    return {
+        integer: integer,
+        decimal: parseFloat(decimal.toFixed(1))
+    };
+}
+
+function getSvgHtml(scale, whiteBg = false, includeMarkers = true) {
     const R1 = 77.75 * scale;
     const R2 = 69.75 * scale;
     const R3 = 61.75 * scale;
     const R4 = 53.75 * scale;
     const R5 = 45.75 * scale;
     const R6 = 37.75 * scale;
-    const R7 = 29.75 * scale; // Outer black
+    const R7 = 29.75 * scale; 
     const R8 = 21.75 * scale;
     const R9 = 13.75 * scale;
     const R10 = 5.75 * scale;
     const R_in = 2.5 * scale;
 
-    const bgFill = whiteBg ? '#fff' : '#1e2126';
-    const paperStroke = whiteBg ? '#000' : '#454e59';
-    const textFill = whiteBg ? '#000' : '#888';
+    // Target theme: Always render as realistic white paper card with black center
+    const bgFill = '#ffffff';
+    const paperStroke = '#1e2126';
+    const textFill = '#2c3e50';
+    
+    let markersHtml = '';
+    const showMarkers = document.getElementById("chkShowMarkers") ? document.getElementById("chkShowMarkers").checked : true;
+    if (includeMarkers && showMarkers && targetMarkers.length > 0) {
+        targetMarkers.forEach((m, idx) => {
+            const renderX = m.x * scale;
+            const renderY = m.y * scale;
+            
+            const rOuter = 2.25 * scale; // 4.5mm pellet radius (2.25mm scaled)
+            const rInner = 2.25 * scale * 0.75;
+            
+            // Standard target red impact rim and lead-puncture gray hole representation
+            const rimColor = '#e74c3c';
+            const coreColor = '#7f8c8d';
+            const shadowFill = 'rgba(231, 76, 60, 0.15)';
+            
+            markersHtml += `
+            <g class="shot-marker-group" data-id="${m.id}">
+                <!-- Pellet impact outer tear -->
+                <circle cx="${renderX}" cy="${renderY}" r="${rOuter}" fill="${shadowFill}" stroke="${rimColor}" stroke-width="0.3"/>
+                <!-- Lead core puncture -->
+                <circle cx="${renderX}" cy="${renderY}" r="${rInner}" fill="${coreColor}" opacity="0.9"/>
+                <!-- Specular highlights -->
+                <circle cx="${renderX - rInner*0.3}" cy="${renderY - rInner*0.3}" r="${rInner*0.25}" fill="#fff" opacity="0.75"/>
+            </g>
+            `;
+        });
+    }
     
     return `
     <svg id="scaledTargetSvg" width="200" height="200" viewBox="-85 -85 170 170" style="background:${bgFill};">
-        <!-- Background/Paper border -->
         <rect x="-84" y="-84" width="168" height="168" fill="${bgFill}" stroke="${paperStroke}" stroke-width="0.5"/>
         
-        <!-- White Ring Outlines (1 to 6) -->
         <circle cx="0" cy="0" r="${R1}" stroke="${paperStroke}" stroke-width="0.3" fill="none"/>
         <circle cx="0" cy="0" r="${R2}" stroke="${paperStroke}" stroke-width="0.3" fill="none"/>
         <circle cx="0" cy="0" r="${R3}" stroke="${paperStroke}" stroke-width="0.3" fill="none"/>
@@ -1924,25 +2120,25 @@ function getSvgHtml(scale, whiteBg = false) {
         <circle cx="0" cy="0" r="${R5}" stroke="${paperStroke}" stroke-width="0.3" fill="none"/>
         <circle cx="0" cy="0" r="${R6}" stroke="${paperStroke}" stroke-width="0.3" fill="none"/>
         
-        <!-- 7-ring and inside (Filled Solid Black) -->
         <circle cx="0" cy="0" r="${R7}" fill="#000000" stroke="none"/>
         
-        <!-- White details inside black (8, 9, 10, inner 10) -->
         <circle cx="0" cy="0" r="${R8}" stroke="rgba(255,255,255,0.3)" stroke-width="0.25" fill="none"/>
         <circle cx="0" cy="0" r="${R9}" stroke="rgba(255,255,255,0.3)" stroke-width="0.25" fill="none"/>
         <circle cx="0" cy="0" r="${R10}" stroke="rgba(255,255,255,0.4)" stroke-width="0.25" fill="none"/>
         <circle cx="0" cy="0" r="${R_in}" stroke="rgba(255,255,255,0.5)" stroke-width="0.2" fill="none"/>
         
-        <!-- Center reference plus mark -->
         <line x1="-1.5" y1="0" x2="1.5" y2="0" stroke="rgba(255,255,255,0.7)" stroke-width="0.3"/>
         <line x1="0" y1="-1.5" x2="0" y2="1.5" stroke="rgba(255,255,255,0.7)" stroke-width="0.3"/>
         
-        <!-- Rings indicator label text (unscaled outer rings, e.g. 1, 3, 5) -->
         ${scale > 0.4 ? `
         <text x="0" y="${-R5 + 3}" fill="${textFill}" font-size="5" text-anchor="middle">5</text>
         <text x="0" y="${-R3 + 3}" fill="${textFill}" font-size="5" text-anchor="middle">3</text>
         <text x="0" y="${-R1 + 3}" fill="${textFill}" font-size="5" text-anchor="middle">1</text>
         ` : ''}
+
+        <g id="shotMarkersGroup">
+            ${markersHtml}
+        </g>
     </svg>
     `;
 }
@@ -1956,16 +2152,112 @@ function updateTargetPreview() {
         distanceMeters = d * 0.3048;
     }
     
-    // Scale multiplier: dry fire distance / 10m standard
     const scale = distanceMeters / 10;
     
-    // Render target SVG
-    document.getElementById("targetPreviewWrapper").innerHTML = getSvgHtml(scale, false);
+    document.getElementById("targetPreviewWrapper").innerHTML = getSvgHtml(scale, false, true);
     
-    // Show black circle diameter label
     const blackDiameterMm = (59.5 * scale).toFixed(2);
     const tenRingDiameterMm = (11.5 * scale).toFixed(2);
     document.getElementById("targetDimensionsLabel").textContent = `Black (7-Ring): ${blackDiameterMm}mm | 10-Ring: ${tenRingDiameterMm}mm`;
+    
+    // Update Scoreboard metrics
+    const count = targetMarkers.length;
+    document.getElementById("targetPlacedCount").textContent = count;
+    
+    if (count > 0) {
+        const sumInt = targetMarkers.reduce((a, b) => a + b.scoreInt, 0);
+        const sumDec = targetMarkers.reduce((a, b) => a + b.scoreDec, 0);
+        const last = targetMarkers[count - 1];
+        
+        document.getElementById("targetTotalScore").textContent = `${sumInt} (${sumDec.toFixed(1)} dec)`;
+        document.getElementById("targetLastScore").textContent = `${last.scoreInt} (${last.scoreDec.toFixed(1)} dec)`;
+        
+        // Render Shot Series List grouped by 10 shots per series
+        const seriesContainer = document.getElementById("targetShotSeriesList");
+        seriesContainer.innerHTML = '';
+        
+        const chunkSize = 10;
+        const seriesCount = Math.ceil(targetMarkers.length / chunkSize);
+        
+        for (let s = 0; s < seriesCount; s++) {
+            const startIdx = s * chunkSize;
+            const chunk = targetMarkers.slice(startIdx, startIdx + chunkSize);
+            
+            const seriesWrapper = document.createElement("div");
+            seriesWrapper.style.cssText = "margin-bottom: 12px; width: 100%; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;";
+            
+            const chunkIntSum = chunk.reduce((a, b) => a + b.scoreInt, 0);
+            const chunkDecSum = chunk.reduce((a, b) => a + b.scoreDec, 0);
+            const maxScoreInt = chunk.length * 10;
+            
+            // Header for this series
+            const header = document.createElement("div");
+            header.style.cssText = "font-size: 11px; font-weight: 600; color: #fff; margin-bottom: 6px; display: flex; justify-content: space-between;";
+            header.innerHTML = `
+                <span>Series ${s + 1} (Shots ${startIdx + 1}-${startIdx + chunk.length})</span>
+                <span style="color: var(--color-hold);">Score: ${chunkIntSum} / ${maxScoreInt} (${chunkDecSum.toFixed(1)} dec)</span>
+            `;
+            seriesWrapper.appendChild(header);
+            
+            // Badges row
+            const badgesRow = document.createElement("div");
+            badgesRow.style.cssText = "display: flex; flex-wrap: wrap; gap: 6px;";
+            
+            chunk.forEach((m, idx) => {
+                const badge = document.createElement("span");
+                badge.style.cssText = "background: rgba(39, 174, 96, 0.12); border: 1px solid rgba(39, 174, 96, 0.3); color: #2ecc71; border-radius: 4px; padding: 3px 8px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;";
+                badge.innerHTML = `<span>#${startIdx + idx + 1}:</span> <strong style="color: #ffffff;">${m.scoreDec.toFixed(1)}</strong>`;
+                badgesRow.appendChild(badge);
+            });
+            
+            seriesWrapper.appendChild(badgesRow);
+            seriesContainer.appendChild(seriesWrapper);
+        }
+    } else {
+        document.getElementById("targetTotalScore").textContent = "0 (0.0 dec)";
+        document.getElementById("targetLastScore").textContent = "--";
+        document.getElementById("targetShotSeriesList").innerHTML = `<span style="font-size: 11px; color: var(--text-muted); font-style: italic;">No shots plotted yet. Click target above.</span>`;
+    }
+}
+
+function handleTargetClick(event) {
+    const svg = document.getElementById("scaledTargetSvg");
+    if (!svg) return;
+    
+    const d = parseFloat(document.getElementById("targetDistance").value);
+    const unit = document.getElementById("distanceUnit").value;
+    let distanceMeters = d;
+    if (unit === 'feet') distanceMeters = d * 0.3048;
+    const scale = distanceMeters / 10;
+    
+    const pt = svg.createSVGPoint();
+    pt.x = event.clientX;
+    pt.y = event.clientY;
+    
+    const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
+    
+    // Calculate unscaled coordinates in physical millimeters (viewport is -85 to 85)
+    const unscaledX = svgP.x / scale;
+    const unscaledY = svgP.y / scale;
+    
+    // Limit bounds: paper card size is 168x168mm (-84 to 84)
+    if (Math.abs(unscaledX) <= 84 && Math.abs(unscaledY) <= 84) {
+        const scoreInfo = getShotScore(unscaledX, unscaledY);
+        targetMarkers.push({
+            x: unscaledX,
+            y: unscaledY,
+            id: Date.now(),
+            scoreInt: scoreInfo.integer,
+            scoreDec: scoreInfo.decimal
+        });
+        
+        updateTargetPreview();
+    }
+}
+
+function clearTargetMarkers() {
+    targetMarkers = [];
+    updateTargetPreview();
 }
 
 function printTarget() {
@@ -1977,9 +2269,6 @@ function printTarget() {
     }
     
     const scale = distanceMeters / 10;
-    
-    // Create physical printed wrapper size based on the 1-ring outer boundaries
-    // 1-ring diameter is 155.5 * scale. We add safety margins
     const containerSizeMm = 155.5 * scale + 15;
     
     const printWindow = window.open('', '_blank');
@@ -2040,7 +2329,7 @@ function printTarget() {
         </head>
         <body>
             <div class="target-print-container">
-                ${getSvgHtml(scale, true)}
+                ${getSvgHtml(scale, true, true)}
             </div>
             <div class="info-banner">
                 <h2>Scaled 10m Air Pistol Target</h2>
@@ -2055,9 +2344,6 @@ function printTarget() {
     printWindow.document.close();
 }
 
-/* ==========================================================================
-   SESSION HISTORY LOGGER & ANALYTICS
-   ========================================================================== */
 function logShot(shotNum, mode, holdTime, isAborted) {
     const shotData = {
         sessionId: currentSessionId,
@@ -2097,24 +2383,25 @@ function clearHistory() {
 function updateAnalyticsTab() {
     const history = getHistory();
     
-    // Overall Stats
     const totalShots = history.length;
     const validShots = history.filter(h => h.result === 'Shot');
     const aborts = history.filter(h => h.result === 'Aborted').length;
     
     document.getElementById("statsTotalShots").textContent = totalShots;
-    document.getElementById("statsAborts").textContent = aborts;
+    document.getElementById("statsTotalShotsLabel").innerHTML = `<i class="fa-solid fa-crosshairs"></i> Shots (${aborts} Aborted)`;
+    
+    const holdShots = validShots.filter(h => h.mode !== 'reaction');
+    const reactionShots = validShots.filter(h => h.mode === 'reaction');
     
     let avgHold = 0;
     let consistencyLabel = "--";
     
-    if (validShots.length > 0) {
-        const sum = validShots.reduce((a, b) => a + b.holdTime, 0);
-        avgHold = sum / validShots.length;
+    if (holdShots.length > 0) {
+        const sum = holdShots.reduce((a, b) => a + b.holdTime, 0);
+        avgHold = sum / holdShots.length;
         document.getElementById("statsAvgHold").textContent = `${avgHold.toFixed(1)}s`;
         
-        // Calculate standard deviation for consistency
-        const variances = validShots.map(h => Math.pow(h.holdTime - avgHold, 2));
+        const variances = holdShots.map(h => Math.pow(h.holdTime - avgHold, 2));
         const avgVariance = variances.reduce((a, b) => a + b, 0) / variances.length;
         const stdDev = Math.sqrt(avgVariance);
         
@@ -2128,14 +2415,22 @@ function updateAnalyticsTab() {
     } else {
         document.getElementById("statsAvgHold").textContent = `0.0s`;
     }
+    
+    let avgReact = 0;
+    if (reactionShots.length > 0) {
+        const sum = reactionShots.reduce((a, b) => a + b.holdTime, 0);
+        avgReact = sum / reactionShots.length;
+        document.getElementById("statsAvgReact").textContent = `${avgReact.toFixed(2)}s`;
+    } else {
+        document.getElementById("statsAvgReact").textContent = `0.00s`;
+    }
+    
     document.getElementById("statsConsistency").textContent = consistencyLabel;
     
-    // Render Bars Chart (Last 15 shots)
     const chartBarsContainer = document.getElementById("holdTimesChart");
     if (history.length === 0) {
         chartBarsContainer.innerHTML = `<div style="color:var(--text-muted); font-size:12px; margin:auto;">No shots recorded yet.</div>`;
     } else {
-        // Grab last 15 elements
         const last15 = history.slice(-15);
         chartBarsContainer.innerHTML = '';
         
@@ -2147,20 +2442,23 @@ function updateAnalyticsTab() {
             bar.className = "chart-bar";
             if (item.result === 'Aborted') {
                 bar.classList.add("aborted");
-                bar.style.height = "100%"; // Full height for abort red indicator
+                bar.style.height = "100%";
+            } else if (item.mode === 'reaction') {
+                const percent = Math.min((item.holdTime / 1.5) * 100, 100);
+                bar.style.height = `${percent}%`;
+                bar.style.background = "linear-gradient(to top, #ff1744, #ff9100)";
             } else {
-                // Percentage of maximum slider hold time (e.g. 15s)
                 const percent = Math.min((item.holdTime / settings.maxHoldTime) * 100, 100);
                 bar.style.height = `${percent}%`;
             }
             
-            // Tooltip
             const tooltip = document.createElement("div");
             tooltip.className = "chart-tooltip";
-            tooltip.textContent = item.result === 'Aborted' ? `Shot #${item.shotNum}: Aborted` : `Shot #${item.shotNum}: ${item.holdTime.toFixed(1)}s`;
+            let displayVal = item.holdTime.toFixed(1) + "s";
+            if (item.mode === 'reaction') displayVal = item.holdTime.toFixed(2) + "s (React)";
+            tooltip.textContent = item.result === 'Aborted' ? `Shot #${item.shotNum}: Aborted` : `Shot #${item.shotNum}: ${displayVal}`;
             bar.appendChild(tooltip);
             
-            // X label
             const label = document.createElement("div");
             label.className = "chart-bar-label";
             label.textContent = item.shotNum;
@@ -2171,7 +2469,6 @@ function updateAnalyticsTab() {
         });
     }
     
-    // Render Table Logs
     const tableBody = document.getElementById("logsTableBody");
     if (history.length === 0) {
         tableBody.innerHTML = `
@@ -2183,23 +2480,34 @@ function updateAnalyticsTab() {
         `;
     } else {
         tableBody.innerHTML = '';
-        // Sort history by newest first
         const sortedHistory = [...history].reverse();
         sortedHistory.forEach(item => {
             const row = document.createElement("tr");
             
             const dateStr = new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            const holdText = item.result === 'Aborted' ? '--' : `${item.holdTime.toFixed(1)}s`;
+            let holdText = "--";
+            if (item.result !== 'Aborted') {
+                holdText = item.mode === 'reaction' ? `${item.holdTime.toFixed(2)}s` : `${item.holdTime.toFixed(1)}s`;
+            }
             const holdClass = item.result === 'Aborted' ? 'log-aborted' : 'log-time';
+            
+            let resultIcon = '<i class="fa-solid fa-circle-check" style="color:var(--color-hold);"></i> Completed';
+            if (item.result === 'Aborted') {
+                resultIcon = '<i class="fa-solid fa-circle-xmark" style="color:var(--color-stop);"></i> Aborted';
+            } else if (item.mode === 'reaction') {
+                resultIcon = '<i class="fa-solid fa-bolt" style="color:var(--color-follow);"></i> Reaction';
+            } else if (item.mode === 'free') {
+                resultIcon = '<i class="fa-solid fa-bullseye" style="color:var(--color-idle);"></i> Free';
+            }
             
             row.innerHTML = `
                 <td>Shot ${item.shotNum}</td>
                 <td style="text-transform: capitalize;">${item.mode}</td>
                 <td class="${holdClass}">${holdText}</td>
-                <td>${item.result === 'Aborted' ? '🔴 Aborted' : '🟢 Completed'}</td>
+                <td>${resultIcon}</td>
                 <td style="color:var(--text-muted);">${dateStr}</td>
                 <td>
-                    <button class="btn-action-small" onclick="deleteLogItem(${item.timestamp})">🗑️</button>
+                    <button class="btn-action-small" onclick="deleteLogItem(${item.timestamp})"><i class="fa-solid fa-trash-can"></i></button>
                 </td>
             `;
             tableBody.appendChild(row);
@@ -2245,7 +2553,6 @@ function loadSettings() {
             const parsed = JSON.parse(raw);
             settings = { ...settings, ...parsed };
             
-            // Sync values to DOM inputs
             document.getElementById("trainingMode").value = settings.mode;
             document.getElementById("audioCuesSelect").value = settings.audioCues;
             document.getElementById("paramVolume").value = settings.volume;
@@ -2261,15 +2568,12 @@ function loadSettings() {
             updateParamLabel('Follow');
             updateParamLabel('Rest');
             
-            // Mic settings
             document.getElementById("micToggle").checked = settings.micEnabled;
             document.getElementById("micThresholdSlider").value = settings.micThreshold;
             
-            // Sync slider marker position
             const ratio = (settings.micThreshold - 0.01) / (0.5 - 0.01);
             document.getElementById("micThresholdMarker").style.left = `${ratio * 100}%`;
             
-            // Initialize mic if toggled on load
             if (settings.micEnabled) {
                 toggleMic();
             }
@@ -2285,7 +2589,6 @@ function loadSettings() {
    INITIALIZATION
    ========================================================================== */
 window.addEventListener("DOMContentLoaded", () => {
-    // Add visual tap action on the target ring for dry fire shooters doing manual logging
     document.getElementById("progressCircle").addEventListener("click", manualShotTrigger);
     
     loadSettings();
