@@ -1052,7 +1052,7 @@ input:checked + .slider-switch:before {
                 </div>
                 
                 <div class="target-preview-box">
-                    <div class="target-wrapper" id="targetPreviewWrapper" style="cursor: crosshair; user-select: none; touch-action: manipulation;">
+                    <div class="target-wrapper" id="targetPreviewWrapper" style="cursor: none; user-select: none; touch-action: manipulation;">
                         <!-- Rendered SVG will go here -->
                     </div>
                     <div style="text-align:center;">
@@ -1094,11 +1094,14 @@ input:checked + .slider-switch:before {
                         <div style="font-size: 11px; color: var(--text-muted);">
                             <i class="fa-solid fa-circle-info"></i> Click target above to plot shots.
                         </div>
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer; user-select: none; margin: 0;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer; user-select: none; margin: 0; margin-right: 4px;">
                                 <input type="checkbox" id="chkShowMarkers" checked onchange="updateTargetPreview()" style="margin: 0; width: 14px; height: 14px;">
                                 Show Marks
                             </label>
+                            <button class="btn btn-secondary" onclick="undoLastMarker()" style="padding: 4px 8px; font-size: 11px; margin: 0; min-height: auto;">
+                                <i class="fa-solid fa-rotate-left"></i> Undo
+                            </button>
                             <button class="btn btn-secondary" onclick="clearTargetMarkers()" style="padding: 4px 8px; font-size: 11px; margin: 0; min-height: auto;">
                                 <i class="fa-solid fa-eraser"></i> Clear
                             </button>
@@ -1284,9 +1287,15 @@ class ClickDetector {
     async enable() {
         if (this.isEnabled) return;
         
+        // Instantiate context synchronously to capture the user gesture context
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
         try {
             this.stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            this.ctx = audioCtx;
+            if (this.ctx.state === 'suspended') {
+                await this.ctx.resume();
+            }
             this.source = this.ctx.createMediaStreamSource(this.stream);
             this.analyser = this.ctx.createAnalyser();
             this.analyser.fftSize = 256;
@@ -2051,15 +2060,18 @@ function getShotScore(unscaledX, unscaledY) {
     let decimal = 11.0 - (d / 8.0);
     if (decimal > 10.9) decimal = 10.9;
     
-    // Integer score: standard inward gauging
-    // Ring radii are spaced exactly 8.0mm apart: 5.75, 13.75, 21.75, etc.
-    let integer = Math.ceil(10 - (d - 2.25) / 8.0);
+    // Round to 1 decimal place first to prevent JavaScript floating-point precision issues
+    decimal = parseFloat(decimal.toFixed(1));
+    
+    // Integer score: standard manual scoring is the mathematical floor of the decimal score
+    // E.g., a decimal score of 9.9 is a manual score of 9 (since it didn't touch the 10-ring line)
+    let integer = Math.floor(decimal);
     if (integer > 10) integer = 10;
     if (integer < 1) integer = 1;
     
     return {
         integer: integer,
-        decimal: parseFloat(decimal.toFixed(1))
+        decimal: decimal
     };
 }
 
@@ -2139,6 +2151,9 @@ function getSvgHtml(scale, whiteBg = false, includeMarkers = true) {
         <g id="shotMarkersGroup">
             ${markersHtml}
         </g>
+        
+        <!-- Dynamic Hover pellet marker (replaces crosshair cursor with real-size pellet helper) -->
+        <circle id="pelletHoverMarker" cx="0" cy="0" r="${2.25 * scale}" fill="rgba(231, 76, 60, 0.3)" stroke="#e74c3c" stroke-width="0.3" style="display: none; pointer-events: none;" />
     </svg>
     `;
 }
@@ -2259,6 +2274,48 @@ function handleTargetTouch(event) {
     event.preventDefault();
     if (event.changedTouches && event.changedTouches.length > 0) {
         handleTargetClick(event.changedTouches[0]);
+    }
+}
+
+function handleTargetMouseMove(event) {
+    const svg = document.getElementById("scaledTargetSvg");
+    const hoverCircle = document.getElementById("pelletHoverMarker");
+    if (!svg || !hoverCircle) return;
+    
+    const d = parseFloat(document.getElementById("targetDistance").value);
+    const unit = document.getElementById("distanceUnit").value;
+    let distanceMeters = d;
+    if (unit === 'feet') distanceMeters = d * 0.3048;
+    const scale = distanceMeters / 10;
+    
+    const pt = svg.createSVGPoint();
+    pt.x = event.clientX;
+    pt.y = event.clientY;
+    
+    const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
+    
+    // Check if mouse is within card boundaries (168x168mm, i.e. -84 to 84)
+    if (Math.abs(svgP.x) <= 84 && Math.abs(svgP.y) <= 84) {
+        hoverCircle.setAttribute("cx", svgP.x);
+        hoverCircle.setAttribute("cy", svgP.y);
+        hoverCircle.setAttribute("r", 2.25 * scale); // Ensure correct scale
+        hoverCircle.style.display = "block";
+    } else {
+        hoverCircle.style.display = "none";
+    }
+}
+
+function handleTargetMouseLeave(event) {
+    const hoverCircle = document.getElementById("pelletHoverMarker");
+    if (hoverCircle) {
+        hoverCircle.style.display = "none";
+    }
+}
+
+function undoLastMarker() {
+    if (targetMarkers.length > 0) {
+        targetMarkers.pop();
+        updateTargetPreview();
     }
 }
 
@@ -2596,12 +2653,19 @@ function loadSettings() {
    INITIALIZATION
    ========================================================================== */
 window.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("progressCircle").addEventListener("click", manualShotTrigger);
+    // Bind click to the entire visualizer container so clicking anywhere inside the ring triggers manual shots
+    const visualizer = document.querySelector(".visualizer-container");
+    if (visualizer) {
+        visualizer.addEventListener("click", manualShotTrigger);
+        visualizer.style.cursor = "pointer";
+    }
     
     const wrapper = document.getElementById("targetPreviewWrapper");
     if (wrapper) {
         wrapper.addEventListener("click", handleTargetClick);
         wrapper.addEventListener("touchend", handleTargetTouch);
+        wrapper.addEventListener("mousemove", handleTargetMouseMove);
+        wrapper.addEventListener("mouseleave", handleTargetMouseLeave);
     }
     
     loadSettings();
