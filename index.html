@@ -1057,6 +1057,9 @@ input:checked + .slider-switch:before {
                 </div>
                 
                 <div class="target-preview-box">
+                    <!-- Target View Selector Row -->
+                    <div id="targetViewSelector" style="display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; justify-content: center; width: 100%;"></div>
+                    
                     <div class="target-wrapper" id="targetPreviewWrapper" style="cursor: none; user-select: none; touch-action: manipulation;">
                         <!-- Rendered SVG will go here -->
                     </div>
@@ -1107,11 +1110,27 @@ input:checked + .slider-switch:before {
                     </div>
                     
                     <!-- Controls Bar -->
-                    <div style="display: flex; justify-content: space-between; align-items: center; background: #090b0d; padding: 8px 12px; border-radius: 8px; border: 1px solid #14181f;">
-                        <div style="font-size: 10px; color: #57606f; font-weight: 600;">
-                            <i class="fa-solid fa-crosshairs"></i> SIUS-Style EST Mode Active
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: #090b0d; padding: 8px 12px; border-radius: 8px; border: 1px solid #14181f; flex-wrap: wrap; gap: 8px;">
+                        <div style="font-size: 10px; color: #57606f; font-weight: 600; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <span><i class="fa-solid fa-crosshairs"></i> SIUS EST Active</span>
+                            
+                            <div style="display: inline-flex; align-items: center; gap: 4px; border-left: 1px solid #1c222c; padding-left: 8px;">
+                                <span style="font-size: 9px; color: #4b6584;">ZOOM:</span>
+                                <input type="range" id="matrixSizeSlider" min="0.7" max="1.5" step="0.1" value="1.0" oninput="changeMatrixSize(this.value)" style="width: 55px; height: 3px; margin: 0; background: #1c222c;">
+                            </div>
+                            
+                            <div style="display: inline-flex; align-items: center; gap: 4px; border-left: 1px solid #1c222c; padding-left: 8px;">
+                                <span style="font-size: 9px; color: #4b6584;">STYLE:</span>
+                                <select id="markingStyleSelect" onchange="changeMarkingStyle(this.value)" style="width: 75px; height: 18px; padding: 0 4px; font-size: 9px; background: #1c222c; border: 1px solid #2c3e50; border-radius: 4px; color: #fff; line-height: 1; outline: none; cursor: pointer;">
+                                    <option value="realistic">Realistic</option>
+                                    <option value="color-coded">Color Dot</option>
+                                    <option value="crosshair">Crosshair</option>
+                                    <option value="solid-red">Solid Red</option>
+                                </select>
+                            </div>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
+                        
+                        <div style="display: flex; align-items: center; gap: 6px;">
                             <label style="display: flex; align-items: center; gap: 6px; font-size: 11px; cursor: pointer; user-select: none; margin: 0; margin-right: 4px; color: #a5b1c2; font-weight: 600;">
                                 <input type="checkbox" id="chkShowMarkers" checked onchange="updateTargetPreview()" style="margin: 0; width: 13px; height: 13px;">
                                 Show Marks
@@ -1419,7 +1438,9 @@ let settings = {
     audioCues: 'both',
     volume: 0.5,
     micEnabled: false,
-    micThreshold: 0.15
+    micThreshold: 0.15,
+    matrixScale: 1.0,
+    markingStyle: 'realistic'
 };
 
 const PRESETS = {
@@ -2092,6 +2113,76 @@ function getShotScore(unscaledX, unscaledY) {
     };
 }
 
+let selectedTargetView = "active"; // "all", "active", or integer series index (1, 2, 3...)
+
+function getFilteredMarkersForView() {
+    const chunkSize = 10;
+    const seriesCount = Math.ceil(targetMarkers.length / chunkSize) || 1;
+    
+    if (selectedTargetView === "all") {
+        return targetMarkers;
+    }
+    
+    if (selectedTargetView === "active") {
+        const startIdx = (seriesCount - 1) * chunkSize;
+        return targetMarkers.slice(startIdx);
+    }
+    
+    const seriesIdx = parseInt(selectedTargetView);
+    if (!isNaN(seriesIdx) && seriesIdx >= 1 && seriesIdx <= seriesCount) {
+        const startIdx = (seriesIdx - 1) * chunkSize;
+        return targetMarkers.slice(startIdx, startIdx + chunkSize);
+    }
+    
+    return targetMarkers;
+}
+
+function updateTargetViewSelector() {
+    const container = document.getElementById("targetViewSelector");
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    const chunkSize = 10;
+    const seriesCount = Math.ceil(targetMarkers.length / chunkSize) || 1;
+    
+    // Create button helper to make markup clean
+    const createBtn = (label, viewMode, activeCondition) => {
+        const btn = document.createElement("button");
+        btn.className = `btn ${activeCondition ? 'btn-primary' : 'btn-secondary'}`;
+        btn.style.cssText = "padding: 6px 12px; font-size: 11px; margin: 0; min-height: auto; font-weight: bold;";
+        btn.innerHTML = label;
+        btn.onclick = () => {
+            selectedTargetView = viewMode;
+            updateTargetPreview();
+        };
+        container.appendChild(btn);
+    };
+    
+    // 1. All Shots Button
+    createBtn(
+        `<i class="fa-solid fa-bullseye"></i> All Shots`,
+        "all",
+        selectedTargetView === "all"
+    );
+    
+    // 2. Active Series Button
+    createBtn(
+        `<i class="fa-solid fa-circle-play"></i> Active Series (${seriesCount})`,
+        "active",
+        selectedTargetView === "active"
+    );
+    
+    // 3. Buttons for individual series
+    for (let s = 1; s <= seriesCount; s++) {
+        createBtn(
+            `Series ${s}`,
+            s,
+            selectedTargetView === s
+        );
+    }
+}
+
 function getSvgHtml(scale, whiteBg = false, includeMarkers = true) {
     const R1 = 77.75 * scale;
     const R2 = 69.75 * scale;
@@ -2113,14 +2204,16 @@ function getSvgHtml(scale, whiteBg = false, includeMarkers = true) {
     let markersHtml = '';
     const showMarkers = document.getElementById("chkShowMarkers") ? document.getElementById("chkShowMarkers").checked : true;
     if (includeMarkers && showMarkers && targetMarkers.length > 0) {
-        targetMarkers.forEach((m, idx) => {
+        const filtered = getFilteredMarkersForView();
+        filtered.forEach((m) => {
             const renderX = m.x * scale;
             const renderY = m.y * scale;
             
             const rOuter = 2.25 * scale; // 4.5mm pellet radius (2.25mm scaled)
             const rInner = 2.25 * scale * 0.75;
             
-            const isRecent = (idx === targetMarkers.length - 1);
+            // Check if this specific marker is the absolute last marker in the entire session!
+            const isRecent = (targetMarkers.length > 0 && m.id === targetMarkers[targetMarkers.length - 1].id);
             
             // Standard target red impact rim and lead-puncture gray hole representation
             // Recent shot is bright red/gold, older shots are faded gray
@@ -2239,12 +2332,14 @@ function updateTargetPreview() {
         const seriesCount = Math.ceil(targetMarkers.length / chunkSize);
         document.getElementById("seriesCountLabel").textContent = `${seriesCount} Series Active`;
         
+        const mScale = settings.matrixScale || 1.0;
+        
         for (let s = 0; s < seriesCount; s++) {
             const startIdx = s * chunkSize;
             const chunk = targetMarkers.slice(startIdx, startIdx + chunkSize);
             
             const seriesWrapper = document.createElement("div");
-            seriesWrapper.style.cssText = "margin-bottom: 14px; background: #14181f; padding: 10px; border-radius: 8px; border: 1px solid #1c222c;";
+            seriesWrapper.style.cssText = `margin-bottom: ${14 * mScale}px; background: #14181f; padding: ${10 * mScale}px; border-radius: 8px; border: 1px solid #1c222c;`;
             
             const chunkIntSum = chunk.reduce((a, b) => a + b.scoreInt, 0);
             const chunkDecSum = chunk.reduce((a, b) => a + b.scoreDec, 0);
@@ -2252,7 +2347,7 @@ function updateTargetPreview() {
             
             // Header for this series
             const header = document.createElement("div");
-            header.style.cssText = "font-size: 11px; font-weight: 700; color: #a5b1c2; margin-bottom: 8px; display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px;";
+            header.style.cssText = `font-size: ${11 * mScale}px; font-weight: 700; color: #a5b1c2; margin-bottom: ${8 * mScale}px; display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: ${4 * mScale}px;`;
             header.innerHTML = `
                 <span>SERIES ${s + 1} (Shots ${startIdx + 1}-${startIdx + chunk.length})</span>
                 <span style="color: #2ecc71;">${chunkIntSum} / ${maxScoreInt} (${chunkDecSum.toFixed(1)} dec)</span>
@@ -2261,7 +2356,7 @@ function updateTargetPreview() {
             
             // Grid of 10 shot cards
             const grid = document.createElement("div");
-            grid.style.cssText = "display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px;";
+            grid.style.cssText = `display: grid; grid-template-columns: repeat(10, 1fr); gap: ${4 * mScale}px;`;
             
             for (let i = 0; i < 10; i++) {
                 const cell = document.createElement("div");
@@ -2298,7 +2393,7 @@ function updateTargetPreview() {
                         background: ${bg}; 
                         border: 1px solid ${border}; 
                         border-radius: 4px; 
-                        padding: 6px 2px; 
+                        padding: ${6 * mScale}px ${2 * mScale}px; 
                         text-align: center;
                         display: flex;
                         flex-direction: column;
@@ -2314,8 +2409,8 @@ function updateTargetPreview() {
                     }
                     
                     cell.innerHTML = `
-                        <span style="font-size: 8px; color: #7f8c8d; font-weight: bold; line-height: 1;">${absoluteIndex}</span>
-                        <strong style="font-size: 11px; color: ${isLast ? '#f1c40f' : '#ffffff'}; font-weight: 800; margin-top: 2px;">${m.scoreDec.toFixed(1)}</strong>
+                        <span style="font-size: ${8 * mScale}px; color: #7f8c8d; font-weight: bold; line-height: 1;">${absoluteIndex}</span>
+                        <strong style="font-size: ${11 * mScale}px; color: ${isLast ? '#f1c40f' : '#ffffff'}; font-weight: 800; margin-top: ${2 * mScale}px;">${m.scoreDec.toFixed(1)}</strong>
                     `;
                 } else {
                     cell.style.cssText = `
@@ -2329,8 +2424,8 @@ function updateTargetPreview() {
                         aspect-ratio: 1;
                     `;
                     cell.innerHTML = `
-                        <span style="font-size: 8px; color: #34495e; font-weight: bold; line-height: 1;">${absoluteIndex}</span>
-                        <span style="font-size: 11px; color: #1c222c; font-weight: 800; margin-top: 2px;">-</span>
+                        <span style="font-size: ${8 * mScale}px; color: #34495e; font-weight: bold; line-height: 1;">${absoluteIndex}</span>
+                        <span style="font-size: ${11 * mScale}px; color: #1c222c; font-weight: 800; margin-top: ${2 * mScale}px;">-</span>
                     `;
                 }
                 grid.appendChild(cell);
@@ -2348,6 +2443,7 @@ function updateTargetPreview() {
         document.getElementById("seriesCountLabel").textContent = "0 Series Active";
         document.getElementById("targetShotSeriesList").innerHTML = `<span style="font-size: 11px; color: #57606f; font-style: italic; display: block; text-align: center; padding: 15px 0;">No shot markers registered. Tap target card above.</span>`;
     }
+    updateTargetViewSelector();
 }
 
 function handleTargetClick(event) {
@@ -2372,6 +2468,11 @@ function handleTargetClick(event) {
     
     // Limit bounds: paper card size is 168x168mm (-84 to 84)
     if (Math.abs(unscaledX) <= 84 && Math.abs(unscaledY) <= 84) {
+        // If viewing an old completed series, auto-switch to active series when a new shot is added
+        if (selectedTargetView !== "all" && selectedTargetView !== "active") {
+            selectedTargetView = "active";
+        }
+        
         const scoreInfo = getShotScore(unscaledX, unscaledY);
         targetMarkers.push({
             x: unscaledX,
@@ -2436,6 +2537,12 @@ function undoLastMarker() {
 
 function clearTargetMarkers() {
     targetMarkers = [];
+    updateTargetPreview();
+}
+
+function changeMatrixSize(val) {
+    settings.matrixScale = parseFloat(val);
+    saveSettings();
     updateTargetPreview();
 }
 
@@ -2752,6 +2859,10 @@ function loadSettings() {
             
             const ratio = (settings.micThreshold - 0.01) / (0.5 - 0.01);
             document.getElementById("micThresholdMarker").style.left = `${ratio * 100}%`;
+            
+            if (document.getElementById("matrixSizeSlider")) {
+                document.getElementById("matrixSizeSlider").value = settings.matrixScale || 1.0;
+            }
             
             if (settings.micEnabled) {
                 toggleMic();
