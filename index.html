@@ -1,4 +1,4 @@
-\<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -148,6 +148,82 @@ header {
     justify-content: center;
     position: relative;
     overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Minimized Coach Card layout when EST Target is open */
+.coach-card.minimized {
+    padding: 14px 20px;
+    justify-content: flex-start;
+    align-items: stretch;
+}
+
+.coach-card.minimized .timer-label {
+    font-size: 10px;
+    letter-spacing: 1px;
+    margin-bottom: 2px;
+}
+
+.coach-card.minimized .visualizer-container {
+    width: 100%;
+    height: 48px;
+    margin: 8px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.coach-card.minimized .visualizer-container svg {
+    display: none; /* Hide progress circles */
+}
+
+.coach-card.minimized .timer-display {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.coach-card.minimized .timer-seconds {
+    font-size: 32px;
+}
+
+.coach-card.minimized .timer-sub {
+    font-size: 10px;
+}
+
+.coach-card.minimized .status-badge {
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.coach-card.minimized .controls-group {
+    margin-top: 10px;
+    gap: 8px;
+}
+
+.coach-card.minimized .controls-group .btn {
+    padding: 10px 16px;
+    font-size: 13px;
+    border-radius: 8px;
+}
+
+.coach-card.minimized .micro-stats {
+    margin-top: 12px;
+    padding-top: 10px;
+    gap: 6px;
+}
+
+.coach-card.minimized .micro-stat-card {
+    padding: 4px;
+}
+
+.coach-card.minimized .micro-stat-val {
+    font-size: 11px;
+}
+
+.coach-card.minimized .micro-stat-lbl {
+    font-size: 8px;
+    margin-top: 1px;
 }
 
 .visualizer-container {
@@ -781,9 +857,20 @@ input:checked + .slider-switch:before {
     vector-effect: non-scaling-stroke;
 }
 
-/* Print CSS placeholder */
-#printArea {
-    display: none;
+/* EST Target Side-by-Side Responsive Layout */
+.est-layout-container {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 20px;
+    align-items: start;
+    width: 100%;
+}
+
+@media (max-width: 900px) {
+    .est-layout-container {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
 }
 </style>
 </head>
@@ -796,7 +883,7 @@ input:checked + .slider-switch:before {
         <div class="brand">
             <span class="brand-icon"><i class="fa-solid fa-crosshairs"></i></span>
             <div class="brand-text">
-                <h1>Dry Fire Companion</h1>
+                <h1>precishot.4</h1>
                 <p>10m Pistol Training System</p>
             </div>
         </div>
@@ -807,7 +894,7 @@ input:checked + .slider-switch:before {
     <div class="main-grid">
         
         <!-- Left: Coach / Active Screen -->
-        <div class="card coach-card">
+        <div class="card coach-card" id="coachCard">
             
             <div class="timer-label" id="currentPhaseLabel">READY</div>
             
@@ -883,8 +970,8 @@ input:checked + .slider-switch:before {
             <div class="tabs-header">
                 <button class="tab-btn active" onclick="switchTab(event, 'settingsTab')"><i class="fa-solid fa-sliders"></i> Settings</button>
                 <button class="tab-btn" onclick="switchTab(event, 'audioTab')"><i class="fa-solid fa-microphone"></i> Audio & Trigger</button>
-                <button class="tab-btn" onclick="switchTab(event, 'targetTab')"><i class="fa-solid fa-bullseye"></i> Target Gen</button>
-                <button class="tab-btn" onclick="switchTab(event, 'historyTab')"><i class="fa-solid fa-chart-line"></i> Analytics</button>
+                <button class="tab-btn" onclick="switchTab(event, 'targetTab')"><i class="fa-solid fa-bullseye"></i> EST Target</button>
+                <button class="tab-btn" onclick="switchTab(event, 'historyTab')" style="color: #a5b1c2; opacity: 0.7;"><i class="fa-solid fa-chart-line"></i> Analytics (On Hold)</button>
             </div>
             
             <!-- Tab Content: Settings -->
@@ -1045,7 +1132,7 @@ input:checked + .slider-switch:before {
                 <div style="display:grid; grid-template-columns: 2fr 1fr; gap:12px;">
                     <div class="form-group">
                         <label>Simulated Distance</label>
-                        <input type="number" id="targetDistance" min="1" max="10" step="0.1" value="3.0" oninput="updateTargetPreview()">
+                        <input type="number" id="targetDistance" min="1" max="10" step="0.1" value="30" oninput="updateTargetPreview()">
                     </div>
                     <div class="form-group">
                         <label>Unit</label>
@@ -1094,17 +1181,18 @@ input:checked + .slider-switch:before {
                         <div style="background: #14181f; padding: 10px; border-radius: 8px; border: 1px solid #1c222c; display: flex; flex-direction: column; justify-content: center; align-items: center;">
                             <div style="font-size: 10px; font-weight: 700; color: #7f8c8d; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">SHOT COUNT</div>
                             <div style="font-size: 26px; font-weight: 800; color: #3498db; line-height: 1;" id="targetCountVal">0</div>
-                            <div style="font-size: 11px; color: #e74c3c; margin-top: 5px; font-weight: 600;" id="targetInnerTens">Inner 10s (X): 0</div>
+                            <div style="font-size: 11px; color: #1ee907; margin-top: 5px; font-weight: 600;" id="targetInnerTens">Inner 10s (X): 0</div>
                         </div>
                     </div>
                     
                     <!-- EST Shot Matrix Display -->
                     <div style="margin-bottom: 12px;">
                         <div style="font-size: 11px; font-weight: 700; color: #7f8c8d; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
-                            <span><i class="fa-solid fa-table-cells"></i> Electronic Shot Matrix</span>
+                            <span><i class="fa-solid fa-table-cells"></i>Shot Matrix</span>
                             <span style="font-size: 10px; color: #4b6584;" id="seriesCountLabel">0 Series active</span>
                         </div>
-                        <div id="targetShotSeriesList" style="max-height: 180px; overflow-y: auto; padding-right: 2px;">
+                        <div id="targetShotSeriesList" style="max-height: 500
+                        px; overflow-y: auto; padding-right: 2px;">
                             <span style="font-size: 11px; color: #57606f; font-style: italic; display: block; text-align: center; padding: 15px 0;">No shot markers registered. Tap target card above.</span>
                         </div>
                     </div>
@@ -1137,6 +1225,15 @@ input:checked + .slider-switch:before {
             
             <!-- Tab Content: History & Analytics -->
             <div class="tab-content" id="historyTab">
+                
+                <!-- On Hold Warning Card -->
+                <div style="background: rgba(230, 126, 34, 0.1); border: 1px dashed #e67e22; padding: 12px; border-radius: 10px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; color: #f39c12;">
+                    <i class="fa-solid fa-triangle-exclamation" style="font-size: 18px;"></i>
+                    <div style="font-size: 11px; text-align: left; line-height: 1.4;">
+                        <strong style="color: #fff; font-size: 12px;">Analytics Mode On Hold</strong><br/>
+                        Automated audio shot detection is currently being optimized for quiet dry-fire sear releases. Please use the <strong>EST Target</strong> tab to plot and score shots manually.
+                    </div>
+                </div>
                 
                 <!-- Stats Dashboard Grid -->
                 <div class="history-stats-grid">
@@ -1712,7 +1809,7 @@ function recordShotClick(isAborted) {
         audio.speak(`Shot at ${holdDuration.toFixed(1)} seconds`);
         
         activeTimeMax = settings.followTime;
-        activeTimeLeft = activeTimeMax;
+        activeTimeLeft = activeTimeMax;id="targetShotSeriesList"
         enterState('FOLLOW');
     } else {
         shotTimes.push(-1);
