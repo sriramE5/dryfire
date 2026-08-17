@@ -866,7 +866,7 @@ input:checked + .slider-switch:before {
     width: 100%;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1200px) {
     .est-layout-container {
         grid-template-columns: 1fr;
         gap: 15px;
@@ -876,6 +876,37 @@ input:checked + .slider-switch:before {
 </head>
 <body>
 
+<!-- Landing Hub Selection Screen -->
+<div id="landingHub" style="display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; background: radial-gradient(circle at center, #1b2028 0%, #0a0b0d 100%); text-align: center; font-family: 'Inter', sans-serif;">
+    <div style="margin-bottom: 40px;">
+        <span style="font-size: 56px; color: #2ecc71; text-shadow: 0 0 25px rgba(46,204,113,0.3);"><i class="fa-solid fa-crosshairs"></i></span>
+        <h1 style="font-family: 'Orbitron', monospace; font-size: 36px; font-weight: 900; margin: 15px 0 5px 0; color: #fff; letter-spacing: 2px;">precishot 10.9</h1>
+        <p style="font-size: 14px; color: #7f8c8d; text-transform: uppercase; letter-spacing: 1px;">10m Pistol Training Companion</p>
+    </div>
+    
+    <div style="display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; max-width: 800px; width: 100%;">
+        <!-- Card 1: Dry Fire Practice -->
+        <div onclick="applyAppMode('dryfire')" style="background: rgba(22, 24, 29, 0.75); border: 2px solid rgba(52, 152, 219, 0.2); border-radius: 16px; padding: 30px; width: 340px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 8px 32px rgba(0,0,0,0.5); backdrop-filter: blur(10px); display: flex; flex-direction: column; align-items: center; gap: 15px;" onmouseover="this.style.borderColor='#3498db'; this.style.transform='translateY(-5px)'; this.style.boxShadow='0 12px 40px rgba(52, 152, 219, 0.2)'" onmouseout="this.style.borderColor='rgba(52, 152, 219, 0.2)'; this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 32px rgba(0,0,0,0.5)'">
+            <span style="font-size: 44px; color: #3498db;"><i class="fa-solid fa-stopwatch"></i></span>
+            <h2 style="font-size: 20px; font-weight: 700; color: #fff; margin: 0;">Dry Fire Practice</h2>
+            <p style="font-size: 12px; color: #90a4ae; line-height: 1.5; margin: 0; min-height: 54px;">Standard raise/rest loop pacing, coached commands, reaction speed drills, and training logs. Visual target board is hidden.</p>
+            <div style="margin-top: 10px; background: rgba(52, 152, 219, 0.1); color: #3498db; font-size: 11px; font-weight: bold; padding: 8px 18px; border-radius: 30px; border: 1px solid rgba(52, 152, 219, 0.2);">
+                <i class="fa-solid fa-play"></i> Start Pacing Drills
+            </div>
+        </div>
+        
+        <!-- Card 2: Match Practice (EST) -->
+        <div onclick="applyAppMode('match')" style="background: rgba(22, 24, 29, 0.75); border: 2px solid rgba(46, 204, 113, 0.2); border-radius: 16px; padding: 30px; width: 340px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 8px 32px rgba(0,0,0,0.5); backdrop-filter: blur(10px); display: flex; flex-direction: column; align-items: center; gap: 15px;" onmouseover="this.style.borderColor='#2ecc71'; this.style.transform='translateY(-5px)'; this.style.boxShadow='0 12px 40px rgba(46, 204, 113, 0.2)'" onmouseout="this.style.borderColor='rgba(46, 204, 113, 0.2)'; this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 32px rgba(0,0,0,0.5)'">
+            <span style="font-size: 44px; color: #2ecc71;"><i class="fa-solid fa-bullseye"></i></span>
+            <h2 style="font-size: 20px; font-weight: 700; color: #fff; margin: 0;">Match Practice (EST)</h2>
+            <p style="font-size: 12px; color: #90a4ae; line-height: 1.5; margin: 0; min-height: 54px;">Integrated paced countdown timer with manual target marking, Sius-style grids, PDF reports, and offline databases.</p>
+            <div style="margin-top: 10px; background: rgba(46, 204, 113, 0.1); color: #2ecc71; font-size: 11px; font-weight: bold; padding: 8px 18px; border-radius: 30px; border: 1px solid rgba(46, 204, 113, 0.2);">
+                <i class="fa-solid fa-bullseye"></i> Start Match Practice
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="app-container">
     
     <!-- Top Header -->
@@ -883,11 +914,16 @@ input:checked + .slider-switch:before {
         <div class="brand">
             <span class="brand-icon"><i class="fa-solid fa-crosshairs"></i></span>
             <div class="brand-text">
-                <h1>precishot.4</h1>
+                <h1>precishot 10.9</h1>
                 <p>10m Pistol Training System</p>
             </div>
         </div>
-        <div class="version-badge">loopminds</div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div class="version-badge" id="versionBadge">developing phase</div>
+            <button class="btn btn-secondary" id="btnChangeMode" onclick="applyAppMode('landing')" style="padding: 4px 10px; font-size: 10px; margin: 0; min-height: auto; font-weight: bold; background: #1c222c; border-color: #2c3e50; color: #fff;">
+                <i class="fa-solid fa-right-from-bracket"></i> Switch Mode
+            </button>
+        </div>
     </header>
     
     <!-- Main Two-Column Grid -->
@@ -971,7 +1007,7 @@ input:checked + .slider-switch:before {
                 <button class="tab-btn active" onclick="switchTab(event, 'settingsTab')"><i class="fa-solid fa-sliders"></i> Settings</button>
                 <button class="tab-btn" onclick="switchTab(event, 'audioTab')"><i class="fa-solid fa-microphone"></i> Audio & Trigger</button>
                 <button class="tab-btn" onclick="switchTab(event, 'targetTab')"><i class="fa-solid fa-bullseye"></i> EST Target</button>
-                <button class="tab-btn" onclick="switchTab(event, 'historyTab')" style="color: #a5b1c2; opacity: 0.7;"><i class="fa-solid fa-chart-line"></i> Analytics (On Hold)</button>
+                <button class="tab-btn" onclick="switchTab(event, 'historyTab')"><i class="fa-solid fa-chart-line"></i> Analytics & Journal</button>
             </div>
             
             <!-- Tab Content: Settings -->
@@ -1129,18 +1165,11 @@ input:checked + .slider-switch:before {
             <!-- Tab Content: Target Generator -->
             <div class="tab-content" id="targetTab">
                 
-                <div style="display:grid; grid-template-columns: 2fr 1fr; gap:12px;">
-                    <div class="form-group">
-                        <label>Simulated Distance</label>
-                        <input type="number" id="targetDistance" min="1" max="10" step="0.1" value="30" oninput="updateTargetPreview()">
-                    </div>
-                    <div class="form-group">
-                        <label>Unit</label>
-                        <select id="distanceUnit" onchange="updateTargetPreview()">
-                            <option value="meters">Meters</option>
-                            <option value="feet">Feet</option>
-                        </select>
-                    </div>
+                <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 12px; background: rgba(0,0,0,0.15); padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border-color); flex-wrap: wrap; width: 100%;">
+                    <span style="font-size: 13px; font-weight: 600; color: var(--text-muted);"><i class="fa-solid fa-magnifying-glass-plus"></i> Target Zoom:</span>
+                    <button class="btn btn-secondary" onclick="zoomTarget(-0.1)" style="padding: 4px 12px; font-size: 14px; font-weight: bold; margin: 0; min-height: auto; width: 36px; height: 30px;">-</button>
+                    <span id="zoomPercentLabel" style="font-family: var(--font-mono); font-size: 13px; font-weight: bold; min-width: 50px; text-align: center;">220%</span>
+                    <button class="btn btn-secondary" onclick="zoomTarget(0.1)" style="padding: 4px 12px; font-size: 14px; font-weight: bold; margin: 0; min-height: auto; width: 36px; height: 30px;">+</button>
                 </div>
                 
                 <div class="target-preview-box">
@@ -1217,8 +1246,8 @@ input:checked + .slider-switch:before {
                     </div>
                 </div>
                 
-                <button class="btn btn-primary" onclick="printTarget()">
-                    <i class="fa-solid fa-print"></i> Print Scaled Target (PDF/Print)
+                <button class="btn btn-primary" onclick="generateScoreReportPDF()">
+                    <i class="fa-solid fa-file-pdf"></i> Generate Score & Shots Report (PDF)
                 </button>
                 
             </div>
@@ -1296,6 +1325,32 @@ input:checked + .slider-switch:before {
                     </button>
                 </div>
                 
+                <!-- Database Saved Sessions Section -->
+                <div class="chart-container" style="margin-top: 25px; page-break-inside: avoid;">
+                    <div class="chart-title"><i class="fa-solid fa-database"></i> Database Saved Training Sessions</div>
+                    <div class="logs-table-container" style="margin-top: 10px; max-height: 250px; overflow-y: auto;">
+                        <table class="logs-table">
+                            <thead>
+                                <tr>
+                                    <th>Date & Time</th>
+                                    <th>Session Type</th>
+                                    <th>Shots</th>
+                                    <th>Score</th>
+                                    <th>Avg Hold/React</th>
+                                    <th style="width: 140px; text-align: center;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dbSessionsTableBody">
+                                <tr>
+                                    <td colspan="6" style="text-align:center; color:var(--text-muted); padding: 20px;">
+                                        No training sessions archived in IndexedDB yet.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
             </div>
             
         </div>
@@ -1305,6 +1360,299 @@ input:checked + .slider-switch:before {
 </div>
 
 <script>
+window.onerror = function (message, source, lineno, colno, error) {
+    alert("Dry Fire Companion App Error:\n\nMessage: " + message + "\nLine: " + lineno + ":" + colno + "\nSource: " + source);
+    return false;
+};
+
+/* ==========================================================================
+   DATABASE MODULE (INDEXEDDB JOURNAL)
+   ========================================================================== */
+class TrainingDB {
+    constructor() {
+        this.dbName = 'DryFireTrainingDB';
+        this.dbVersion = 1;
+        this.db = null;
+    }
+
+    init() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(this.dbName, this.dbVersion);
+
+            request.onerror = (event) => {
+                console.error("Database failed to open:", event.target.error);
+                reject(event.target.error);
+            };
+
+            request.onsuccess = (event) => {
+                this.db = event.target.result;
+                console.log("Database initialized successfully.");
+                resolve(this.db);
+            };
+
+            request.onupgradeneeded = (event) => {
+                const db = event.target.result;
+                
+                // Create object store for settings
+                if (!db.objectStoreNames.contains('settings')) {
+                    db.createObjectStore('settings');
+                }
+
+                // Create object store for sessions
+                if (!db.objectStoreNames.contains('sessions')) {
+                    const sessionStore = db.createObjectStore('sessions', { keyPath: 'id' });
+                    sessionStore.createIndex('date', 'date', { unique: false });
+                }
+            };
+        });
+    }
+
+    saveSettings(settingsObj) {
+        return new Promise((resolve, reject) => {
+            if (!this.db) return reject("DB not initialized");
+            const tx = this.db.transaction('settings', 'readwrite');
+            const store = tx.objectStore('settings');
+            const request = store.put(settingsObj, 'app_settings');
+
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    loadSettings() {
+        return new Promise((resolve, reject) => {
+            if (!this.db) return resolve(null);
+            const tx = this.db.transaction('settings', 'readonly');
+            const store = tx.objectStore('settings');
+            const request = store.get('app_settings');
+
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    saveSession(sessionObj) {
+        return new Promise((resolve, reject) => {
+            if (!this.db) return reject("DB not initialized");
+            const tx = this.db.transaction('sessions', 'readwrite');
+            const store = tx.objectStore('sessions');
+            const request = store.put(sessionObj);
+
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    getSession(id) {
+        return new Promise((resolve, reject) => {
+            if (!this.db) return reject("DB not initialized");
+            const tx = this.db.transaction('sessions', 'readonly');
+            const store = tx.objectStore('sessions');
+            const request = store.get(id);
+
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    getAllSessions() {
+        return new Promise((resolve, reject) => {
+            if (!this.db) return resolve([]);
+            const tx = this.db.transaction('sessions', 'readonly');
+            const store = tx.objectStore('sessions');
+            const request = store.getAll();
+
+            request.onsuccess = () => {
+                const list = request.result || [];
+                list.sort((a, b) => b.id - a.id);
+                resolve(list);
+            };
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    deleteSession(id) {
+        return new Promise((resolve, reject) => {
+            if (!this.db) return reject("DB not initialized");
+            const tx = this.db.transaction('sessions', 'readwrite');
+            const store = tx.objectStore('sessions');
+            const request = store.delete(id);
+
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+        });
+    }
+}
+
+const db = new TrainingDB();
+
+async function saveActiveSessionToDB() {
+    if (!db.db) return;
+    
+    const count = targetMarkers.length;
+    const sumInt = count > 0 ? targetMarkers.reduce((a, b) => a + b.scoreInt, 0) : 0;
+    const sumDec = count > 0 ? targetMarkers.reduce((a, b) => a + b.scoreDec, 0) : 0;
+    const avgDec = count > 0 ? parseFloat((sumDec / count).toFixed(2)) : 0;
+    const innerTens = targetMarkers.filter(m => m.scoreDec >= 10.3).length;
+    
+    // Get history logs
+    const history = getHistory();
+    const activeHistory = history.filter(h => h.sessionId === currentSessionId);
+    
+    const validShots = activeHistory.filter(h => h.result === 'Shot');
+    const holdShots = validShots.filter(h => h.mode !== 'reaction');
+    const reactionShots = validShots.filter(h => h.mode === 'reaction');
+    
+    const avgHold = holdShots.length > 0 ? parseFloat((holdShots.reduce((a, b) => a + b.holdTime, 0) / holdShots.length).toFixed(2)) : 0;
+    const avgReact = reactionShots.length > 0 ? parseFloat((reactionShots.reduce((a, b) => a + b.holdTime, 0) / reactionShots.length).toFixed(2)) : 0;
+    
+    const sessionType = settings.mode === 'free' ? 'Free Fire Mode' : (settings.mode === 'reaction' ? 'Reaction Speed Mode' : 'Paced Rhythm Mode');
+    const displayType = (count > 0 && activeHistory.length === 0) ? 'EST Target Practice' : sessionType;
+    
+    const session = {
+        id: currentSessionId,
+        date: new Date(currentSessionId).toLocaleString(),
+        type: displayType,
+        shotCount: Math.max(count, activeHistory.length),
+        totalScoreInt: sumInt,
+        totalScoreDec: sumDec,
+        avgHoldTime: avgHold,
+        avgReactTime: avgReact,
+        innerTens: innerTens,
+        markers: targetMarkers,
+        shots: activeHistory
+    };
+    
+    try {
+        await db.saveSession(session);
+        updateDbSessionsList();
+    } catch (err) {
+        console.error("Error saving session to DB:", err);
+    }
+}
+
+async function loadSessionFromDB(id) {
+    try {
+        const sess = await db.getSession(id);
+        if (!sess) {
+            alert("Session not found in database.");
+            return;
+        }
+        
+        if (!confirm("Load this session? This will replace the active target plotter and split timer logs on screen.")) {
+            return;
+        }
+        
+        // Load visual target markers
+        targetMarkers = sess.markers || [];
+        currentSessionId = sess.id;
+        
+        // Update target plotter display
+        updateTargetPreview();
+        
+        // Load split history logs into the local memory and update analytics
+        if (sess.shots && sess.shots.length > 0) {
+            localStorage.setItem("dryfire_companion_history", JSON.stringify(sess.shots));
+            currentShotNumber = sess.shots.length + 1;
+        } else {
+            localStorage.setItem("dryfire_companion_history", JSON.stringify([]));
+            currentShotNumber = 1;
+        }
+        
+        // Update all scoreboard and analytics displays
+        updateMicroStats();
+        updateAnalyticsTab();
+        
+        // Switch tab to the EST Target view!
+        const targetTabBtn = document.querySelector(".tabs-header button:nth-child(3)");
+        if (targetTabBtn) {
+            targetTabBtn.click();
+        }
+        
+        alert(`Session from ${sess.date} loaded successfully!`);
+    } catch (err) {
+        console.error("Error loading session:", err);
+        alert("Failed to load session from database.");
+    }
+}
+
+async function deleteSessionFromDB(id) {
+    if (!confirm("Delete this session from database? This cannot be undone.")) return;
+    try {
+        await db.deleteSession(id);
+        updateDbSessionsList();
+        
+        // If they deleted the active session they are currently viewing, reset the screen
+        if (currentSessionId === id) {
+            targetMarkers = [];
+            currentSessionId = Date.now();
+            localStorage.setItem("dryfire_companion_history", JSON.stringify([]));
+            currentShotNumber = 1;
+            updateTargetPreview();
+            updateMicroStats();
+            updateAnalyticsTab();
+        }
+    } catch (err) {
+        console.error("Error deleting session:", err);
+    }
+}
+
+async function updateDbSessionsList() {
+    const container = document.getElementById("dbSessionsTableBody");
+    if (!container) return;
+    
+    try {
+        const sessions = await db.getAllSessions();
+        if (sessions.length === 0) {
+            container.innerHTML = `
+                <tr>
+                    <td colspan="6" style="text-align:center; color:var(--text-muted); padding: 20px;">
+                        No training sessions archived in IndexedDB yet. Plot shots or run pacing drills to log!
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        
+        container.innerHTML = '';
+        sessions.forEach(sess => {
+            const typeLabel = sess.type || 'Practice Drill';
+            const scoreStr = sess.markers && sess.markers.length > 0 ? 
+                `${sess.totalScoreInt} (${sess.totalScoreDec.toFixed(1)} dec)` : 
+                '--';
+            
+            let avgMetricsStr = '--';
+            if (sess.avgHoldTime > 0 && sess.avgReactTime > 0) {
+                avgMetricsStr = `Hold: ${sess.avgHoldTime.toFixed(1)}s | React: ${sess.avgReactTime.toFixed(2)}s`;
+            } else if (sess.avgHoldTime > 0) {
+                avgMetricsStr = `Hold: ${sess.avgHoldTime.toFixed(1)}s`;
+            } else if (sess.avgReactTime > 0) {
+                avgMetricsStr = `React: ${sess.avgReactTime.toFixed(2)}s`;
+            }
+            
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${sess.date}</td>
+                <td><strong>${typeLabel}</strong></td>
+                <td>${sess.shotCount} shots</td>
+                <td style="color: var(--color-hold); font-weight: bold;">${scoreStr}</td>
+                <td>${avgMetricsStr}</td>
+                <td style="text-align: center; display: flex; gap: 6px; justify-content: center; align-items: center;">
+                    <button class="btn btn-secondary" onclick="loadSessionFromDB(${sess.id})" style="padding: 4px 8px; font-size: 10px; margin: 0; min-height: auto; font-weight: bold; background: #1c222c; border-color: #2c3e50;">
+                        <i class="fa-solid fa-folder-open"></i> Load
+                    </button>
+                    <button class="btn btn-secondary" onclick="deleteSessionFromDB(${sess.id})" style="padding: 4px 8px; font-size: 10px; margin: 0; min-height: auto; font-weight: bold; color: var(--color-stop); background: #1c222c; border-color: #2c3e50;">
+                        <i class="fa-solid fa-trash-can"></i> Delete
+                    </button>
+                </td>
+            `;
+            container.appendChild(row);
+        });
+    } catch (err) {
+        console.error("Error rendering DB sessions list:", err);
+    }
+}
+
 /* ==========================================================================
    AUDIO ENGINE
    ========================================================================== */
@@ -1499,8 +1847,15 @@ function handleMicrophoneShot(volume) {
 let trainingState = 'IDLE'; 
 let paused = false;
 let timerId = null;
+let appMode = 'landing';
 
-let currentSessionId = null;
+let currentSessionId = (() => {
+    const saved = localStorage.getItem("dryfire_current_session_id");
+    if (saved) return parseInt(saved);
+    const newId = Date.now();
+    localStorage.setItem("dryfire_current_session_id", newId);
+    return newId;
+})();
 let currentShotNumber = 0;
 let shotTimes = []; 
 let holdStartTime = 0; 
@@ -2037,6 +2392,8 @@ function switchTab(evt, tabId) {
     document.getElementById(tabId).classList.add("active");
     evt.currentTarget.classList.add("active");
     
+    localStorage.setItem("dryfire_active_tab", tabId);
+    
     if (tabId === 'historyTab') {
         updateAnalyticsTab();
     }
@@ -2262,7 +2619,7 @@ function updateTargetViewSelector() {
     }
 }
 
-function getSvgHtml(scale, whiteBg = false, includeMarkers = true) {
+function getSvgHtml(scale, whiteBg = false, includeMarkers = true, cropped = false) {
     const R1 = 77.75 * scale;
     const R2 = 69.75 * scale;
     const R3 = 61.75 * scale;
@@ -2319,15 +2676,23 @@ function getSvgHtml(scale, whiteBg = false, includeMarkers = true) {
         });
     }
     
+    const viewBox = cropped ? "-42 -42 84 84" : "-85 -85 170 170";
+    const bgRect = cropped ? 
+        `<rect x="-41" y="-41" width="82" height="82" fill="${bgFill}" stroke="${paperStroke}" stroke-width="0.5"/>` :
+        `<rect x="-84" y="-84" width="168" height="168" fill="${bgFill}" stroke="${paperStroke}" stroke-width="0.5"/>`;
+    
     return `
-    <svg id="scaledTargetSvg" width="200" height="200" viewBox="-85 -85 170 170" style="background:${bgFill};">
-        <rect x="-84" y="-84" width="168" height="168" fill="${bgFill}" stroke="${paperStroke}" stroke-width="0.5"/>
+    <svg id="scaledTargetSvg" width="200" height="200" viewBox="${viewBox}" style="background:${bgFill};">
+        ${bgRect}
         
+        <!-- Only render outer rings if NOT cropped to avoid drawing lines outside card -->
+        ${!cropped ? `
         <circle cx="0" cy="0" r="${R1}" stroke="${paperStroke}" stroke-width="0.3" fill="none"/>
         <circle cx="0" cy="0" r="${R2}" stroke="${paperStroke}" stroke-width="0.3" fill="none"/>
         <circle cx="0" cy="0" r="${R3}" stroke="${paperStroke}" stroke-width="0.3" fill="none"/>
         <circle cx="0" cy="0" r="${R4}" stroke="${paperStroke}" stroke-width="0.3" fill="none"/>
         <circle cx="0" cy="0" r="${R5}" stroke="${paperStroke}" stroke-width="0.3" fill="none"/>
+        ` : ''}
         <circle cx="0" cy="0" r="${R6}" stroke="${paperStroke}" stroke-width="0.3" fill="none"/>
         
         <circle cx="0" cy="0" r="${R7}" fill="#000000" stroke="none"/>
@@ -2340,7 +2705,7 @@ function getSvgHtml(scale, whiteBg = false, includeMarkers = true) {
         <line x1="-1.5" y1="0" x2="1.5" y2="0" stroke="rgba(255,255,255,0.7)" stroke-width="0.3"/>
         <line x1="0" y1="-1.5" x2="0" y2="1.5" stroke="rgba(255,255,255,0.7)" stroke-width="0.3"/>
         
-        ${scale > 0.4 ? `
+        ${(!cropped && scale > 0.4) ? `
         <text x="0" y="${-R5 + 3}" fill="${textFill}" font-size="5" text-anchor="middle">5</text>
         <text x="0" y="${-R3 + 3}" fill="${textFill}" font-size="5" text-anchor="middle">3</text>
         <text x="0" y="${-R1 + 3}" fill="${textFill}" font-size="5" text-anchor="middle">1</text>
@@ -2356,16 +2721,23 @@ function getSvgHtml(scale, whiteBg = false, includeMarkers = true) {
     `;
 }
 
-function updateTargetPreview() {
-    const d = parseFloat(document.getElementById("targetDistance").value);
-    const unit = document.getElementById("distanceUnit").value;
+let targetScale = 2.2; // Default 220% zoom level (close up to 7-ring view)
+
+function zoomTarget(change) {
+    targetScale = parseFloat((targetScale + change).toFixed(2));
+    if (targetScale < 0.1) targetScale = 0.1;
+    if (targetScale > 4.0) targetScale = 4.0;
     
-    let distanceMeters = d;
-    if (unit === 'feet') {
-        distanceMeters = d * 0.3048;
+    const label = document.getElementById("zoomPercentLabel");
+    if (label) {
+        label.textContent = `${Math.round(targetScale * 100)}%`;
     }
     
-    const scale = distanceMeters / 10;
+    updateTargetPreview();
+}
+
+function updateTargetPreview() {
+    const scale = targetScale;
     
     document.getElementById("targetPreviewWrapper").innerHTML = getSvgHtml(scale, false, true);
     
@@ -2527,11 +2899,7 @@ function handleTargetClick(event) {
     const svg = document.getElementById("scaledTargetSvg");
     if (!svg) return;
     
-    const d = parseFloat(document.getElementById("targetDistance").value);
-    const unit = document.getElementById("distanceUnit").value;
-    let distanceMeters = d;
-    if (unit === 'feet') distanceMeters = d * 0.3048;
-    const scale = distanceMeters / 10;
+    const scale = targetScale;
     
     const pt = svg.createSVGPoint();
     pt.x = event.clientX;
@@ -2559,7 +2927,9 @@ function handleTargetClick(event) {
             scoreDec: scoreInfo.decimal
         });
         
+        logShot(targetMarkers.length, 'manual', 0.0, false);
         updateTargetPreview();
+        updateMicroStats();
     }
 }
 
@@ -2575,11 +2945,7 @@ function handleTargetMouseMove(event) {
     const hoverCircle = document.getElementById("pelletHoverMarker");
     if (!svg || !hoverCircle) return;
     
-    const d = parseFloat(document.getElementById("targetDistance").value);
-    const unit = document.getElementById("distanceUnit").value;
-    let distanceMeters = d;
-    if (unit === 'feet') distanceMeters = d * 0.3048;
-    const scale = distanceMeters / 10;
+    const scale = targetScale;
     
     const pt = svg.createSVGPoint();
     pt.x = event.clientX;
@@ -2608,92 +2974,387 @@ function handleTargetMouseLeave(event) {
 function undoLastMarker() {
     if (targetMarkers.length > 0) {
         targetMarkers.pop();
+        
+        // Also remove the corresponding manual shot from splits history
+        let history = getHistory();
+        const idx = history.map(h => h.sessionId === currentSessionId).lastIndexOf(true);
+        if (idx !== -1) {
+            history.splice(idx, 1);
+            localStorage.setItem("dryfire_companion_history", JSON.stringify(history));
+        }
+        
         updateTargetPreview();
+        updateMicroStats();
+        saveActiveSessionToDB();
     }
 }
 
 function clearTargetMarkers() {
+    if (targetMarkers.length > 0) {
+        saveActiveSessionToDB();
+    }
     targetMarkers = [];
+    currentSessionId = Date.now();
+    selectedTargetView = "active";
     updateTargetPreview();
-}
-
-function printTarget() {
-    const d = parseFloat(document.getElementById("targetDistance").value);
-    const unit = document.getElementById("distanceUnit").value;
-    let distanceMeters = d;
-    if (unit === 'feet') {
-        distanceMeters = d * 0.3048;
+    saveActiveSessionToDB();
+}function generateScoreReportPDF() {
+    const count = targetMarkers.length;
+    if (count === 0) {
+        alert("No shots plotted yet. Please click on the target to mark shots before generating a report.");
+        return;
     }
     
-    const scale = distanceMeters / 10;
-    const containerSizeMm = 155.5 * scale + 15;
+    const sumInt = targetMarkers.reduce((a, b) => a + b.scoreInt, 0);
+    const sumDec = targetMarkers.reduce((a, b) => a + b.scoreDec, 0);
+    const avgDec = (sumDec / count).toFixed(2);
+    const innerTens = targetMarkers.filter(m => m.scoreDec >= 10.3).length;
+    
+    const dateStr = new Date().toLocaleString();
+    
+    const chunkSize = 10;
+    const seriesCount = Math.ceil(targetMarkers.length / chunkSize);
+    
+    // Save original view mode to restore later
+    const originalView = selectedTargetView;
+    
+    // 1. Generate horizontal shot matrix table rows
+    let tableRowsHtml = '';
+    for (let s = 0; s < seriesCount; s++) {
+        const startIdx = s * chunkSize;
+        const chunk = targetMarkers.slice(startIdx, startIdx + chunkSize);
+        const chunkIntSum = chunk.reduce((a, b) => a + b.scoreInt, 0);
+        const chunkDecSum = chunk.reduce((a, b) => a + b.scoreDec, 0);
+        
+        let shotsCells = '';
+        chunk.forEach((m) => {
+            shotsCells += `<td style="border: 1px solid #ccc; padding: 6px; text-align: center;">${m.scoreDec.toFixed(1)}</td>`;
+        });
+        // Pad remaining cells if the last series is incomplete
+        for (let i = chunk.length; i < 10; i++) {
+            shotsCells += `<td style="border: 1px solid #ccc; padding: 6px; text-align: center; color: #aaa;">-</td>`;
+        }
+        
+        tableRowsHtml += `
+            <tr>
+                <td style="border: 1px solid #ccc; padding: 6px; font-weight: bold; background: #f9f9f9; text-align: center;">Series ${s + 1}</td>
+                ${shotsCells}
+                <td style="border: 1px solid #ccc; padding: 6px; font-weight: bold; text-align: center; background: #eef7ee; color: #27ae60;">
+                    ${chunkIntSum} (${chunkDecSum.toFixed(1)})
+                </td>
+            </tr>
+        `;
+    }
+    
+    // 2. Generate series-wise target card blocks
+    let seriesCardsHtml = '';
+    for (let s = 0; s < seriesCount; s++) {
+        const startIdx = s * chunkSize;
+        const chunk = targetMarkers.slice(startIdx, startIdx + chunkSize);
+        const chunkIntSum = chunk.reduce((a, b) => a + b.scoreInt, 0);
+        const chunkDecSum = chunk.reduce((a, b) => a + b.scoreDec, 0);
+        
+        // Generate specific series SVG target
+        selectedTargetView = s + 1;
+        const seriesSvg = getSvgHtml(0.6, true, true, true); // Cropped target for series
+        
+        // Generate 10-shot list badges
+        let shotsListHtml = '';
+        chunk.forEach((m, idx) => {
+            const shotNum = startIdx + idx + 1;
+            let badgeColor = "#7f8c8d";
+            if (m.scoreInt === 10) badgeColor = "#2ecc71";
+            else if (m.scoreInt === 9) badgeColor = "#3498db";
+            else if (m.scoreInt === 8) badgeColor = "#f1c40f";
+            else if (m.scoreInt === 7) badgeColor = "#e67e22";
+            
+            shotsListHtml += `
+                <div class="print-shot-badge">
+                    <span class="shot-idx">#${shotNum}</span>
+                    <span class="shot-score" style="color: ${badgeColor};">${m.scoreDec.toFixed(1)}</span>
+                </div>
+            `;
+        });
+        
+        seriesCardsHtml += `
+            <div class="series-print-card">
+                <div class="series-print-target-box">
+                    <div class="series-target-title">SERIES ${s + 1} TARGET</div>
+                    <div class="series-target-svg-wrapper">
+                        ${seriesSvg}
+                    </div>
+                </div>
+                <div class="series-print-data-box">
+                    <div class="series-data-header">
+                        <span>SERIES ${s + 1} SHOTS</span>
+                        <span class="series-sum">${chunkIntSum} / 100 (${chunkDecSum.toFixed(1)} dec)</span>
+                    </div>
+                    <div class="print-shots-grid">
+                        ${shotsListHtml}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // 3. Generate main target (all shots)
+    selectedTargetView = "all";
+    const printableSvg = getSvgHtml(0.6, true, true, true); // Cropped view of ALL shots
+    
+    // Restore original user view
+    selectedTargetView = originalView;
     
     const printWindow = window.open('', '_blank');
+    if (!printWindow || printWindow.closed || typeof printWindow.closed == 'undefined') {
+        alert("Popup blocked! Please allow popups for this page in your browser settings to open the Score Report PDF.");
+        return;
+    }
     printWindow.document.write(`
         <!DOCTYPE html>
         <html>
         <head>
-            <title>Dry Fire Target - ${d} ${unit}</title>
+            <title>Dry Fire Performance Report</title>
             <style>
                 body {
-                    margin: 0;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: center;
-                    align-items: center;
-                    min-height: 100vh;
                     font-family: 'Segoe UI', Arial, sans-serif;
+                    margin: 40px;
                     background: #fff;
-                    color: #000;
+                    color: #333;
+                    line-height: 1.4;
+                }
+                h1 { margin: 0 0 5px 0; color: #2c3e50; font-size: 24px; text-align: center; }
+                h3 { margin: 0 0 25px 0; color: #7f8c8d; font-size: 13px; text-align: center; font-weight: normal; text-transform: uppercase; letter-spacing: 1px; }
+                .report-container {
+                    max-width: 800px;
+                    margin: 0 auto;
+                }
+                .meta-grid {
+                    display: grid;
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: 15px;
+                    margin-bottom: 25px;
+                }
+                .meta-box {
+                    background: #f8f9fa;
+                    border: 1px solid #e9ecef;
+                    border-radius: 8px;
+                    padding: 12px;
                     text-align: center;
                 }
-                .target-print-container {
-                    width: ${containerSizeMm}mm;
-                    height: ${containerSizeMm}mm;
-                    border: 0.5px dashed #ccc;
+                .meta-label { font-size: 10px; color: #7f8c8d; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px; }
+                .meta-val { font-size: 18px; font-weight: 800; color: #2c3e50; margin-top: 4px; }
+                
+                .visual-section {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    margin-bottom: 35px;
+                    page-break-inside: avoid;
+                }
+                .target-container {
+                    width: 110mm;
+                    height: 110mm;
+                    border: 1px solid #ddd;
                     display: flex;
                     justify-content: center;
+                    align-items: center;
+                    background: #fff;
+                }
+                .target-container svg { width: 100%; height: 100%; }
+                
+                .section-title {
+                    margin: 30px 0 15px 0; 
+                    color: #2c3e50; 
+                    font-size: 14px; 
+                    text-transform: uppercase; 
+                    letter-spacing: 0.5px; 
+                    border-bottom: 2px solid #2c3e50; 
+                    padding-bottom: 4px;
+                    page-break-after: avoid;
+                }
+                
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    font-size: 12px;
+                    margin-bottom: 20px;
+                    page-break-inside: avoid;
+                }
+                th {
+                    background: #2c3e50;
+                    color: #fff;
+                    padding: 8px;
+                    border: 1px solid #2c3e50;
+                }
+                
+                /* Series Print Cards */
+                .series-print-card {
+                    display: flex;
+                    background: #fff;
+                    border: 1px solid #ddd;
+                    border-radius: 8px;
+                    padding: 15px;
+                    margin-bottom: 20px;
+                    gap: 20px;
                     align-items: center;
                     page-break-inside: avoid;
                 }
-                .target-print-container svg {
+                .series-print-target-box {
+                    flex: 0 0 70mm;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                }
+                .series-target-title {
+                    font-size: 9px;
+                    font-weight: bold;
+                    color: #7f8c8d;
+                    margin-bottom: 5px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+                .series-target-svg-wrapper {
+                    width: 55mm;
+                    height: 55mm;
+                    border: 1px solid #eee;
+                    background: #fff;
+                }
+                .series-target-svg-wrapper svg {
                     width: 100%;
                     height: 100%;
                 }
-                .info-banner {
-                    margin-top: 30px;
-                    max-width: 450px;
+                .series-print-data-box {
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
                 }
-                h2 { margin: 0 0 5px 0; font-size: 18px; }
-                p { margin: 5px 0; font-size: 13px; color: #555; }
+                .series-data-header {
+                    font-size: 13px;
+                    font-weight: bold;
+                    color: #2c3e50;
+                    border-bottom: 1.5px solid #2c3e50;
+                    padding-bottom: 4px;
+                    margin-bottom: 10px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+                .series-sum {
+                    color: #27ae60;
+                    font-size: 13px;
+                    font-weight: 800;
+                }
+                .print-shots-grid {
+                    display: grid;
+                    grid-template-columns: repeat(5, 1fr);
+                    gap: 8px;
+                }
+                .print-shot-badge {
+                    border: 1px solid #eee;
+                    border-radius: 5px;
+                    background: #fdfdfd;
+                    padding: 4px 2px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    text-align: center;
+                }
+                .shot-idx {
+                    font-size: 8px;
+                    color: #7f8c8d;
+                    font-weight: bold;
+                    line-height: 1;
+                }
+                .shot-score {
+                    font-size: 12px;
+                    font-weight: 800;
+                    margin-top: 2px;
+                    line-height: 1;
+                }
+                
+                .footer {
+                    margin-top: 45px;
+                    text-align: center;
+                    font-size: 11px;
+                    color: #95a5a6;
+                    border-top: 1px solid #eee;
+                    padding-top: 15px;
+                }
                 .btn-print {
-                    background: #000;
+                    display: block;
+                    background: #27ae60;
                     color: #fff;
                     padding: 10px 24px;
                     border: none;
                     border-radius: 6px;
                     font-size: 14px;
-                    font-weight: 600;
+                    font-weight: bold;
                     cursor: pointer;
-                    margin-top: 15px;
+                    margin: 20px auto 0 auto;
                 }
                 @media print {
-                    .info-banner { display: none; }
-                    .target-print-container { border: none; }
-                    body { min-height: auto; }
+                    .btn-print { display: none; }
+                    body { margin: 20px; }
                 }
             </style>
         </head>
         <body>
-            <div class="target-print-container">
-                ${getSvgHtml(scale, true, true)}
-            </div>
-            <div class="info-banner">
-                <h2>Scaled 10m Air Pistol Target</h2>
-                <p>Configured for <strong>${d} ${unit}</strong> simulated distance.</p>
-                <p>Ratio: <strong>${(scale * 100).toFixed(1)}%</strong> of full size.</p>
-                <p style="color: #c0392b; font-weight: 500;">⚠️ IMPORTANT: In your browser print settings, disable headers/footers and set scale to exactly <strong>100%</strong> (do not select 'Fit to Page').</p>
-                <button class="btn-print" onclick="window.print()">Print Target</button>
+            <div class="report-container">
+                <h1>DRY FIRE SCORING REPORT</h1>
+                <h3>Electronic Scoring Target (EST) Session</h3>
+                
+                <div class="meta-grid">
+                    <div class="meta-box">
+                        <div class="meta-label">Total Score</div>
+                        <div class="meta-val">${sumInt} (${sumDec.toFixed(1)} dec)</div>
+                    </div>
+                    <div class="meta-box">
+                        <div class="meta-label">Avg / Inner 10s</div>
+                        <div class="meta-val">${avgDec} / X:${innerTens}</div>
+                    </div>
+                    <div class="meta-box">
+                        <div class="meta-label">Shots Fired</div>
+                        <div class="meta-val">${count}</div>
+                    </div>
+                    <div class="meta-box">
+                        <div class="meta-label">Session Date</div>
+                        <div class="meta-val" style="font-size:12px; font-weight:600; line-height:1.2; margin-top:8px;">${dateStr}</div>
+                    </div>
+                </div>
+                
+                <div class="visual-section">
+                    <div class="target-container">
+                        ${printableSvg}
+                    </div>
+                    <p style="font-size: 11px; color: #7f8c8d; margin-top: 8px;">ALL SHOTS - Zoomed center aiming area (rings 6–10 view)</p>
+                </div>
+                
+                <div class="section-title">Series Summary Matrix</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 80px; text-align: center;">Series</th>
+                            <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th>
+                            <th style="width: 100px; text-align: center;">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tableRowsHtml}
+                    </tbody>
+                </table>
+                
+                <div class="section-title">Series-wise Visual Groupings</div>
+                <div class="series-cards-container">
+                    ${seriesCardsHtml}
+                </div>
+                
+                <button class="btn-print" onclick="window.print()">Print Scorecard PDF</button>
+                
+                <div class="footer">
+                    Generated by Dry Fire Companion App - Professional ISSF Training Scorecard
+                </div>
             </div>
         </body>
         </html>
@@ -2714,6 +3375,7 @@ function logShot(shotNum, mode, holdTime, isAborted) {
     let history = getHistory();
     history.push(shotData);
     localStorage.setItem("dryfire_companion_history", JSON.stringify(history));
+    saveActiveSessionToDB();
 }
 
 function getHistory() {
@@ -2728,6 +3390,7 @@ function deleteLogItem(timestamp) {
     localStorage.setItem("dryfire_companion_history", JSON.stringify(history));
     updateAnalyticsTab();
     updateMicroStats();
+    saveActiveSessionToDB();
 }
 
 function clearHistory() {
@@ -2735,6 +3398,7 @@ function clearHistory() {
     localStorage.removeItem("dryfire_companion_history");
     updateAnalyticsTab();
     updateMicroStats();
+    saveActiveSessionToDB();
 }
 
 function updateAnalyticsTab() {
@@ -2764,7 +3428,7 @@ function updateAnalyticsTab() {
         
         if (stdDev < 1.0) {
             consistencyLabel = "EXCELLENT";
-        } else if (stdDev < 1.8) {
+        } else if (stdDev < 2.0) {
             consistencyLabel = "GOOD";
         } else {
             consistencyLabel = "VARIABLE";
@@ -2870,6 +3534,8 @@ function updateAnalyticsTab() {
             tableBody.appendChild(row);
         });
     }
+    
+    updateDbSessionsList();
 }
 
 function exportCSV() {
@@ -2900,14 +3566,26 @@ function exportCSV() {
    SETTINGS PERSISTENCE
    ========================================================================== */
 function saveSettings() {
+    if (db.db) {
+        db.saveSettings(settings).catch(err => console.error("Error saving settings to IndexedDB:", err));
+    }
     localStorage.setItem("dryfire_companion_settings", JSON.stringify(settings));
 }
 
-function loadSettings() {
-    const raw = localStorage.getItem("dryfire_companion_settings");
-    if (raw) {
-        try {
-            const parsed = JSON.parse(raw);
+async function loadSettingsFromDB() {
+    try {
+        let parsed = null;
+        if (db.db) {
+            parsed = await db.loadSettings();
+        }
+        
+        // Fallback to localStorage if IndexedDB is empty
+        if (!parsed) {
+            const raw = localStorage.getItem("dryfire_companion_settings");
+            if (raw) parsed = JSON.parse(raw);
+        }
+        
+        if (parsed) {
             settings = { ...settings, ...parsed };
             
             document.getElementById("trainingMode").value = settings.mode;
@@ -2934,18 +3612,102 @@ function loadSettings() {
             if (settings.micEnabled) {
                 toggleMic();
             }
-        } catch (e) {
-            console.error("Error parsing saved settings:", e);
         }
+    } catch (e) {
+        console.error("Error loading settings:", e);
+    }
+    onModeChange();
+}
+
+/* ==========================================================================
+   APP MODE ROUTER (PORTAL SELECTION)
+   ========================================================================== */
+function applyAppMode(mode) {
+    appMode = mode;
+    localStorage.setItem("dryfire_app_mode", mode);
+    
+    const landing = document.getElementById("landingHub");
+    const appContainer = document.querySelector(".app-container");
+    const timerCard = document.getElementById("coachCard");
+    const configCard = document.querySelector(".config-card");
+    const modeBadge = document.getElementById("versionBadge");
+    const btnChangeMode = document.getElementById("btnChangeMode");
+    
+    if (mode === 'landing') {
+        if (landing) landing.style.display = "flex";
+        if (appContainer) appContainer.style.display = "none";
+        return;
     }
     
-    onModeChange();
+    if (landing) landing.style.display = "none";
+    if (appContainer) appContainer.style.display = "block";
+    if (btnChangeMode) btnChangeMode.style.display = "block";
+    
+    const tabBtns = document.querySelectorAll(".tabs-header .tab-btn");
+    
+    if (mode === 'dryfire') {
+        if (timerCard) timerCard.style.display = "flex";
+        if (configCard) {
+            configCard.style.width = "";
+            configCard.style.maxWidth = "";
+            configCard.style.margin = "";
+        }
+        
+        if (tabBtns.length >= 4) {
+            tabBtns[0].style.display = "block";
+            tabBtns[1].style.display = "block";
+            tabBtns[2].style.display = "none"; // Hide Target
+            tabBtns[3].style.display = "block";
+            
+            const activeTab = localStorage.getItem("dryfire_active_tab") || "settingsTab";
+            if (activeTab === 'targetTab') {
+                tabBtns[0].click();
+            } else {
+                tabBtns.forEach(btn => {
+                    if (btn.getAttribute("onclick") && btn.getAttribute("onclick").includes(activeTab)) {
+                        btn.click();
+                    }
+                });
+            }
+        }
+        
+        if (modeBadge) {
+            modeBadge.textContent = "Dry Fire Practice";
+            modeBadge.style.background = "#3498db";
+        }
+    } else if (mode === 'match') {
+        if (timerCard) timerCard.style.display = "flex";
+        if (configCard) {
+            configCard.style.width = "";
+            configCard.style.maxWidth = "";
+            configCard.style.margin = "";
+        }
+        
+        if (tabBtns.length >= 4) {
+            tabBtns[0].style.display = "block"; // Show Settings
+            tabBtns[1].style.display = "block"; // Show Audio presets
+            tabBtns[2].style.display = "block"; // Show Target
+            tabBtns[3].style.display = "block"; // Show History
+            
+            const activeTab = localStorage.getItem("dryfire_active_tab") || "targetTab";
+            tabBtns.forEach(btn => {
+                if (btn.getAttribute("onclick") && btn.getAttribute("onclick").includes(activeTab)) {
+                    btn.click();
+                }
+            });
+        }
+        
+        if (modeBadge) {
+            modeBadge.textContent = "Match Practice (EST)";
+            modeBadge.style.background = "#2ecc71";
+        }
+    }
 }
 
 /* ==========================================================================
    INITIALIZATION
    ========================================================================== */
-window.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("DOMContentLoaded", async () => {
     // Bind click to the entire visualizer container so clicking anywhere inside the ring triggers manual shots
     const visualizer = document.querySelector(".visualizer-container");
     if (visualizer) {
@@ -2961,9 +3723,36 @@ window.addEventListener("DOMContentLoaded", () => {
         wrapper.addEventListener("mouseleave", handleTargetMouseLeave);
     }
     
-    loadSettings();
+    try {
+        await db.init();
+        console.log("IndexedDB Initialized.");
+        
+        // Restore last active session from database
+        if (currentSessionId) {
+            const sess = await db.getSession(currentSessionId);
+            if (sess) {
+                targetMarkers = sess.markers || [];
+                if (sess.shots && sess.shots.length > 0) {
+                    localStorage.setItem("dryfire_companion_history", JSON.stringify(sess.shots));
+                    currentShotNumber = sess.shots.length + 1;
+                } else {
+                    localStorage.setItem("dryfire_companion_history", JSON.stringify([]));
+                    currentShotNumber = 1;
+                }
+                console.log("Restored previous session:", currentSessionId);
+            }
+        }
+    } catch (err) {
+        console.error("IndexedDB initialization failed:", err);
+    }
+    
+    await loadSettingsFromDB();
     updateTargetPreview();
     updateMicroStats();
+    
+    // Restore application mode
+    const savedMode = localStorage.getItem("dryfire_app_mode") || "landing";
+    applyAppMode(savedMode);
 });
 </script>
 
